@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete Tasks - Snake Race Game</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="task-form">
+    <h2>Oznacz zadanie jako ukończone</h2>
+    <form id="complete-task-form">
+      <div class="form-group">
+        <label for="player-select">Wybierz klasę:</label>
+        <select id="player-select" name="player_id" class="form-control" required>
+          <option value="">-- Wybierz klasę --</option>
+          {% for player in players %}
+          <option value="{{ player.id }}">{{ player.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="task-select">Wybierz zadanie:</label>
+        <select id="task-select" name="task_id" class="form-control" required>
+          <option value="">-- Select Task --</option>
+          {% for task_id, task_name in task_names.items() %}
+          <option value="{{ task_id }}">{{ task_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <button type="submit" class="submit-btn">Oznacz jako ukończone</button>
+    </form>
+    
+    <div id="completion-message" style="margin-top: 15px; text-align: center; display: none;">
+      <p class="success-message" style="color: green; font-weight: bold;"></p>
+    </div>
+    <div id="loading" style="display: none; text-align: center;">
+      <p>Loading...</p>
+    </div>
+  </div>
+  
+  <div class="recent-tasks">
+    <h3>Ostatnio ukończone zadania</h3>
+    {% if recent_tasks %}
+      {% for task in recent_tasks %}
+      <div class="task-item">
+        <strong>{{ task.player.name }}</strong> completed <strong>{{ task_names[task.task_id] }}</strong>
+        at {{ task.completed_at.strftime('%H:%M:%S') }}
+      </div>
+      {% endfor %}
+    {% else %}
+      <p>Brak ukończonych zadań.</p>
+    {% endif %}
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('complete-task-form');
+      const messageDiv = document.getElementById('completion-message');
+      const successMessage = document.querySelector('.success-message');
+      const loadingDiv = document.getElementById('loading');
+      
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const playerSelect = document.getElementById('player-select');
+        const taskSelect = document.getElementById('task-select');
+        const playerId = playerSelect.value;
+        const taskId = taskSelect.value;
+        const playerName = playerSelect.options[playerSelect.selectedIndex].text;
+        const taskName = taskSelect.options[taskSelect.selectedIndex].text;
+        
+        if (!playerId || !taskId) {
+          alert('Wybierz klasę i zadanie, aby oznaczyć zadanie jako ukończone.');
+          return;
+        }
+        
+        const formData = new FormData(form);
+        loadingDiv.style.display = 'block';
+        
+        fetch('/complete_task', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          loadingDiv.style.display = 'none';
+          if (data.success) {
+            successMessage.textContent = `${playerName} ukończyła zadanie ${taskName}!`;
+            messageDiv.style.display = 'block';
+            form.reset();
+            
+            // Reload page to show updated completions
+            setTimeout(() => {
+              location.reload();
+            }, 1500);
+          } else {
+            alert('Error: ' + (data.error || 'Failed to complete task'));
+          }
+        })
+        .catch(error => {
+          loadingDiv.style.display = 'none';
+          console.error('Error:', error);
+          alert('An error occurred. Please try again.');
+        });
+      });
+    });
+  </script>
+</body>
+</html>
