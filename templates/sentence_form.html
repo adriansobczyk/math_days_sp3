@@ -3,39 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Submit Sentence</title>
+  <title>Wpisz hasło</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  {% if message %}
-  <div class="notification {{ message_type }}">
-    {{ message }}
-  </div>
-  {% endif %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="notification {{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
   <div class="task-form">
     <form action="{{ url_for('submit_sentence') }}" method="POST">
       <div class="form-group">
-        <label for="player_id">Player ID:</label>
+        <label for="player_id">Klasa:</label>
         <select id="player_id" name="player_id" class="form-control" required>
+          <option value="">Wybierz klasę</option>
           {% for player in players %}
           <option value="{{ player.id }}">{{ player.name }}</option>
           {% endfor %}
         </select>
       </div>
-      <div class="form-group">
+      <div class="form-group" style="display: none;">
         <label for="cell_number">Numer pola:</label>
-        <select id="cell_number" name="cell_number" class="form-control" required>
-          {% for i in range(1, 51) %}
-          <option value="{{ i }}">{{ i }}</option>
-          {% endfor %}
-        </select>
+        <input type="hidden" id="cell_number" name="cell_number" class="form-control" required>
       </div>
       <div class="form-group">
-        <label for="sentence">Sentence:</label>
+        <label for="sentence">Hasło:</label>
         <input type="text" id="sentence" name="sentence" class="form-control" required>
       </div>
-      <button type="submit" class="submit-btn">Submit</button>
+      <button type="submit" class="submit-btn">Zatwierdź</button>
     </form>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('player_id').addEventListener('change', function() {
+        var playerId = this.value;
+        if (playerId) {
+          fetch('/get_cell_number/' + playerId)
+            .then(response => response.json())
+            .then(data => {
+              var cellNumberInput = document.getElementById('cell_number');
+              if (data.cell_number !== null) {
+                cellNumberInput.value = data.cell_number;
+              } else {
+                cellNumberInput.value = '';
+              }
+            });
+        } else {
+          var cellNumberInput = document.getElementById('cell_number');
+          cellNumberInput.value = '';
+        }
+      });
+    });
+  </script>
 </body>
 </html>

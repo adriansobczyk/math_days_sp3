@@ -1,15 +1,13 @@
-from flask import render_template, request, jsonify, redirect, url_for
+from flask import render_template, request, jsonify, redirect, url_for, flash
 from app import app, db
 from models import Player, PlayerTask, PlayerSentence, CorrectSentence, CorrectCode, PlayerCode, task_names
-from datetime import datetime
+
 
 @app.route('/')
 def index():
     players = Player.query.order_by(Player.name).all()
     recent_tasks = PlayerTask.query.order_by(PlayerTask.completed_at.desc()).limit(3).all()
-    message = request.args.get('message')
-    message_type = request.args.get('message_type')
-    return render_template('index.html', players=players, recent_tasks=recent_tasks, task_names=task_names, message=message, message_type=message_type)
+    return render_template('index.html', players=players, recent_tasks=recent_tasks, task_names=task_names)
 
 @app.route('/api/players', methods=['GET'])
 def get_players():
@@ -36,8 +34,6 @@ def roll_dice(player_id):
     player = Player.query.get_or_404(player_id)
     data = request.json
     roll_value = data.get('roll')
-    
-    # Update player result with exact roll value (1:1 ratio)
     player.result += roll_value
     db.session.commit()
     
@@ -54,7 +50,7 @@ def reset_game():
     db.session.commit()
     return jsonify({'success': True})
 
-@app.route('/tasks')
+@app.route('/zadania')
 def tasks_view():
     players = Player.query.order_by(Player.name).all()
     recent_tasks = PlayerTask.query.order_by(PlayerTask.completed_at.desc()).limit(3).all()
@@ -71,15 +67,12 @@ def complete_task():
     player = Player.query.get_or_404(player_id)
     task_id = int(task_id)
     
-    # Create a new PlayerTask record
     player_task = PlayerTask(
         player_id=player_id, 
         task_id=task_id, 
         task_status=True
     )
     db.session.add(player_task)
-    
-    # Update player's result (add 1 point per task)
     player.result += 1
     
     db.session.commit()
@@ -92,7 +85,6 @@ def complete_task():
 
 @app.route('/get_recent_tasks', methods=['GET'])
 def get_recent_tasks():
-    # Get recent tasks
     recent_tasks = PlayerTask.query.order_by(PlayerTask.completed_at.desc()).all()
     tasks = []
     for task in recent_tasks:
@@ -104,8 +96,6 @@ def get_recent_tasks():
             'type': 'task',
             'timestamp': task.completed_at
         })
-    
-    # Get recent correct code submissions
     recent_codes = db.session.query(PlayerCode, CorrectCode).\
         join(CorrectCode, PlayerCode.sentence == CorrectCode.sentence).\
         order_by(PlayerCode.created_at.desc()).all()
@@ -116,46 +106,50 @@ def get_recent_tasks():
             'player': {
                 'name': player.name
             },
-            'task_name': f"correctly encrypted the code. {player.name} can {correct_code.bonus_type}",
+            'task_name': f"poprawnie rozszyfrowała hasło. {player.name} otrzymała {correct_code.bonus_type}",
             'type': 'code',
             'timestamp': player_code.created_at
         })
-    
-    # Sort by timestamp (most recent first) and limit to 3
-    tasks = sorted(tasks, key=lambda x: x['timestamp'], reverse=True)[:3]
-    
+    tasks = sorted(tasks, key=lambda x: x['timestamp'], reverse=True)[:1]
     return jsonify({'recent_tasks': tasks})
 
 @app.route('/submit_sentence', methods=['POST'])
 def submit_sentence():
     player_id = request.form.get('player_id')
-    cell_number = request.form.get('cell_number')
     sentence = request.form.get('sentence')
     
-    if not player_id or not cell_number or not sentence:
-        return redirect(url_for('sentence_form', message='Player, cell number, and sentence are required', message_type='error'))
+    if not player_id or not sentence:
+        flash('Klasa oraz hasło jest wymagane.', 'error')
+        return redirect(url_for('sentence_form'))
     
+    player = Player.query.get_or_404(player_id)
+    cell_number = player.result
+    player_sentence = PlayerSentence(
+        player_id=player_id,
+        sentence=sentence
+    )
+    db.session.add(player_sentence)
+    db.session.commit()
     correct_sentence = CorrectSentence.query.filter_by(cell_number=cell_number, correct_sentence=sentence).first()
     
     if correct_sentence:
-        player_sentence = PlayerSentence(
-            player_id=player_id,
-            sentence=sentence
-        )
-        db.session.add(player_sentence)
-        db.session.commit()
-        
-        return redirect(url_for('sentence_form', message=f'Sentence correct. Please go to {correct_sentence.classroom}.', message_type='success'))
+        flash(f'Hasło poprawne. Pójdź do {correct_sentence.classroom}.', 'success')
     else:
-        return redirect(url_for('sentence_form', message='Incorrect sentence.', message_type='error'))
+        flash('Niepoprawne hasło.', 'error')
+    
+    return redirect(url_for('sentence_form'))
 
-@app.route('/sentence_form')
+@app.route('/zatwierdz-haslo')
 def sentence_form():
     players = Player.query.order_by(Player.name).all()
-    cell_numbers = CorrectSentence.query.with_entities(CorrectSentence.cell_number).distinct().all()
-    message = request.args.get('message')
-    message_type = request.args.get('message_type')
-    return render_template('sentence_form.html', players=players, cell_numbers=cell_numbers, message=message, message_type=message_type)
+    return render_template('sentence_form.html', players=players)
+
+@app.route('/get_cell_number/<int:player_id>')
+def get_cell_number(player_id):
+    player = Player.query.get(player_id)
+    if player:
+        return jsonify({'cell_number': player.result})
+    return jsonify({'cell_number': None}), 404
 
 @app.route('/submit_code', methods=['POST'])
 def submit_code():
@@ -163,9 +157,11 @@ def submit_code():
     code = request.form.get('code')
     
     if not player_id or not code:
-        return redirect(url_for('code_form', message='Player and code are required', message_type='error'))
+        flash('Klasa oraz szyfr jest wymagany.', 'error')
+        return redirect(url_for('code_form'))
     
-    # Create and save the PlayerCode record
+    player = Player.query.get_or_404(player_id)
+    cell_number = player.current_cell 
     new_player_code = PlayerCode(player_id=player_id, sentence=code)
     db.session.add(new_player_code)
     db.session.commit()
@@ -173,17 +169,14 @@ def submit_code():
     correct_code = CorrectCode.query.filter_by(sentence=code).first()
     
     if correct_code:
-        # Show success message on current page
-        player = Player.query.get(player_id)
-        message = f'Player {player.name} correctly encrypted the code. Player {player.name} can {correct_code.bonus_type}.'
-        return redirect(url_for('code_form', message=message, message_type='success'))
+        flash(f'Szyfr jest poprawny. Otrzymałeś {correct_code.bonus_type}.', 'success')
     else:
-        return redirect(url_for('code_form', message='Code is incorrect. Try again.', message_type='error'))
+        flash('Szyfr jest niepoprawny. Spróbuj ponownie.', 'error')
     
-@app.route('/code_form')
+    return redirect(url_for('code_form'))
+
+@app.route('/zatwierdz-szyfr')
 def code_form():
     players = Player.query.order_by(Player.name).all()
     subjects = CorrectCode.query.with_entities(CorrectCode.subject).distinct().all()
-    message = request.args.get('message')
-    message_type = request.args.get('message_type')
-    return render_template('code_form.html', players=players, subjects=subjects, message=message, message_type=message_type)
+    return render_template('code_form.html', players=players, subjects=subjects)

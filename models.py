@@ -32,6 +32,7 @@ class Player(db.Model):
     task_done = db.Column(db.Boolean, default=False)
     color = db.Column(db.String(20), nullable=False, default='blue')
     shape = db.Column(db.String(20), nullable=False, default='circle')
+    current_cell = db.Column(db.Integer, nullable=True)
     
     def __repr__(self):
         return f'<Player {self.name}>'
@@ -44,7 +45,8 @@ class Player(db.Model):
             'bonus': self.bonus,
             'task_done': self.task_done,
             'color': self.color,
-            'shape': self.shape
+            'shape': self.shape,
+            'current_cell': self.current_cell
         }
 
 class PlayerTask(db.Model):

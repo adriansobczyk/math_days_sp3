@@ -1,26 +1,36 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Snake Race Game</title>
+  <title>Gra</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <div class="class-buttons">
-    {% for player in players %}
-    <button id="roll-{{ player.name | lower }}" data-player-id="{{ player.id }}">{{ player.name }}</button>
-    {% endfor %}
-  </div>
-  <h3 id="dice-result"></h3>
-  <div class="chalkboard">
-    <div class="snake-path">
+    <div class="task-notifications" id="task-notifications">
+      {% if recent_tasks %}
+        {% for task in recent_tasks %}
+        <div class="task-alert">
+          Klasa {{ task.player.name }} ukończyła {{ task_names[task.task_id] }}
+        </div>
+        {% endfor %}
+      {% endif %}
     </div>
-    <div class="pawns">
+  <h3 id="dice-result"></h3>
+  <div class="main-container">
+    <div class="class-buttons">
       {% for player in players %}
-      <div class="pawn pawn-{{ loop.index }}" data-player-id="{{ player.id }}" data-position="0"><span>{{ player.name }}</span></div>
+      <button id="roll-{{ player.name | lower }}" data-player-id="{{ player.id }}">{{ player.name }}</button>
       {% endfor %}
+    </div>
+    <div class="chalkboard">
+      <div class="snake-path">
+      </div>
+      <div class="pawns">
+        {% for player in players %}
+        <div class="pawn pawn-{{ loop.index }}" data-player-id="{{ player.id }}" data-position="0"><span>{{ player.name }}</span></div>
+        {% endfor %}
+      </div>
     </div>
     <div class="controls">
       <div class="dice-container">
@@ -63,107 +73,6 @@
         </div>
       </div>
       <table id="score-table">
-        <strong>Wyniki:</strong>
-        <thead>
-          <tr>
-            <th>Klasa</th>
-            <th>Punkty</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for player in players %}
-          <tr data-player-id="{{ player.id }}">
-            <td>{{ player.name }}</td>
-            <td class="player-result">{{ player.result }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      <button id="reset-game">Resetuj grę</button>
-    </div>
-  </div>
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
-=======
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Snake Race Game</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-  <div class="class-buttons">
-    {% for player in players %}
-    <button id="roll-{{ player.name | lower }}" data-player-id="{{ player.id }}">{{ player.name }}</button>
-    {% endfor %}
-  </div>
-  <h3 id="dice-result"></h3>
-  <div class="task-notifications" id="task-notifications">
-    {% if recent_tasks %}
-      {% for task in recent_tasks %}
-      <div class="task-alert">
-        Klasa {{ task.player.name }} ukończyła {{ task_names[task.task_id] }}
-      </div>
-      {% endfor %}
-    {% endif %}
-  </div>
-  {% if message %}
-  <div class="notification {{ message_type }}">
-    {{ message }}
-  </div>
-  {% endif %}
-  <div class="chalkboard">
-    <div class="snake-path">
-    </div>
-    <div class="pawns">
-      {% for player in players %}
-      <div class="pawn pawn-{{ loop.index }}" data-player-id="{{ player.id }}" data-position="0"><span>{{ player.name }}</span></div>
-      {% endfor %}
-    </div>
-    <div class="controls">
-      <div class="dice-container">
-        <div class="dice">
-          <ol class="die-list even-roll" data-roll="1" id="die-1">
-            <li class="die-item" data-side="1">
-              <span class="dot"></span>
-            </li>
-            <li class="die-item" data-side="2">
-              <span class="dot"></span>
-              <span class="dot"></span>
-            </li>
-            <li class="die-item" data-side="3">
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-            </li>
-            <li class="die-item" data-side="4">
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-            </li>
-            <li class="die-item" data-side="5">
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-            </li>
-            <li class="die-item" data-side="6">
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-            </li>
-          </ol>
-        </div>
-      </div>
-      <table id="score-table">
-        <strong>Wyniki:</strong>
         <thead>
           <tr>
             <th>Klasa</th>
@@ -208,5 +117,4 @@
     setInterval(refreshTaskNotifications, 3000);
   </script>
 </body>
->>>>>>> updates
 </html>

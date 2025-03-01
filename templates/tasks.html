@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Complete Tasks - Snake Race Game</title>
+  <title>Ukończ zadanie</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
   <div class="task-form">
-    <h2>Oznacz zadanie jako ukończone</h2>
+    <h3>Oznacz zadanie jako ukończone</h3>
     <form id="complete-task-form">
       <div class="form-group">
         <label for="player-select">Wybierz klasę:</label>
@@ -42,12 +42,12 @@
   </div>
   
   <div class="recent-tasks">
-    <h3>Ostatnio ukończone zadania</h3>
+    <div>Ostatnio ukończone zadania:</div>
     {% if recent_tasks %}
       {% for task in recent_tasks %}
       <div class="task-item">
-        <strong>{{ task.player.name }}</strong> completed <strong>{{ task_names[task.task_id] }}</strong>
-        at {{ task.completed_at.strftime('%H:%M:%S') }}
+        <strong>{{ task.player.name }}</strong> ukończył <strong>{{ task_names[task.task_id] }}</strong>
+        o godzinie {{ task.completed_at.strftime('%H:%M:%S') }}
       </div>
       {% endfor %}
     {% else %}
@@ -97,13 +97,13 @@
               location.reload();
             }, 1500);
           } else {
-            alert('Error: ' + (data.error || 'Failed to complete task'));
+            alert('Error: ' + (data.error || 'Zadanie nie zostało ukończone.'));
           }
         })
         .catch(error => {
           loadingDiv.style.display = 'none';
           console.error('Error:', error);
-          alert('An error occurred. Please try again.');
+          alert('Wystąpił błąd. Spróbuj ponownie.');
         });
       });
     });
