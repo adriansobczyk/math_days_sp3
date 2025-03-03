@@ -28,7 +28,7 @@ class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
     result = db.Column(db.Integer, default=0)
-    bonus = db.Column(db.Integer, default=0)
+    bonus = db.Column(db.String(100), default='')
     task_done = db.Column(db.Boolean, default=False)
     color = db.Column(db.String(20), nullable=False, default='blue')
     shape = db.Column(db.String(20), nullable=False, default='circle')

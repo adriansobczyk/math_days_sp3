@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gra</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+
+  </style>
 </head>
 <body>
     <div class="task-notifications" id="task-notifications">
@@ -19,8 +22,21 @@
   <h3 id="dice-result"></h3>
   <div class="main-container">
     <div class="class-buttons">
+      <div class="enable-player-container">
+        <select id="player-select" class="form-control" required>
+          <option value="">Wybierz klasę</option>
+          {% for player in players %}
+          <option value="{{ player.id }}">{{ player.name }}</option>
+          {% endfor %}
+        </select>
+        <button id="enable-player-button" onclick="enablePlayerButton()">Odblokuj</button>
+      </div>
+      <hr>
       {% for player in players %}
-      <button id="roll-{{ player.name | lower }}" data-player-id="{{ player.id }}">{{ player.name }}</button>
+      <div class="player-button-container">
+        <button id="roll-{{ player.id }}" data-player-id="{{ player.id }}" onclick="rollDiceForPlayer('{{ player.id }}')">{{ player.name }}</button>
+        <span class="bonus-icon" onclick="showBonusModal('{{ player.id }}')">🎁</span>
+      </div>
       {% endfor %}
     </div>
     <div class="chalkboard">
@@ -76,7 +92,7 @@
         <thead>
           <tr>
             <th>Klasa</th>
-            <th>Punkty</th>
+            <th>Pole</th>
           </tr>
         </thead>
         <tbody>
@@ -91,30 +107,28 @@
       <button id="reset-game">Resetuj grę</button>
     </div>
   </div>
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
-  <script>
-    function refreshTaskNotifications() {
-      fetch('/get_recent_tasks')
-        .then(response => response.json())
-        .then(data => {
-          const taskNotifications = document.getElementById('task-notifications');
-          taskNotifications.innerHTML = '';
-          data.recent_tasks.forEach(task => {
-            const taskAlert = document.createElement('div');
-            taskAlert.className = 'task-alert';
-            
-            if (task.type === 'task') {
-              taskAlert.textContent = `Klasa ${task.player.name} ukończyła ${task.task_name}`;
-            } else if (task.type === 'code') {
-              taskAlert.textContent = `Player ${task.player.name} ${task.task_name}`;
-            }
-            
-            taskNotifications.appendChild(taskAlert);
-          });
-        });
-    }
+  <div id="bonusModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeBonusModal()">&times;</span>
+      <h2>Dostępne bonusy</h2>
+      <ul id="bonus-list">
+      </ul>
+    </div>
+  </div>
 
-    setInterval(refreshTaskNotifications, 3000);
+  <script type="module" src="{{ url_for('static', filename='js/config.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/api.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/board.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/players.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/dice.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/notification.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/lib/socket.io.js') }}"></script>
+  <script type="module">
+    import { enablePlayerButton, showBonusModal, closeBonusModal } from './static/js/board.js';
+    document.getElementById('enable-player-button').onclick = enablePlayerButton;
+    window.showBonusModal = showBonusModal;
+    window.closeBonusModal = closeBonusModal;
   </script>
 </body>
 </html>

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wpisz hasło</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='js/get_cell_number.js') }}" defer></script>
 </head>
 <body>
   {% with messages = get_flashed_messages(with_categories=true) %}
@@ -38,28 +39,5 @@
       <button type="submit" class="submit-btn">Zatwierdź</button>
     </form>
   </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('player_id').addEventListener('change', function() {
-        var playerId = this.value;
-        if (playerId) {
-          fetch('/get_cell_number/' + playerId)
-            .then(response => response.json())
-            .then(data => {
-              var cellNumberInput = document.getElementById('cell_number');
-              if (data.cell_number !== null) {
-                cellNumberInput.value = data.cell_number;
-              } else {
-                cellNumberInput.value = '';
-              }
-            });
-        } else {
-          var cellNumberInput = document.getElementById('cell_number');
-          cellNumberInput.value = '';
-        }
-      });
-    });
-  </script>
 </body>
 </html>

@@ -1,13 +1,11 @@
 from flask import render_template, request, jsonify, redirect, url_for, flash
-from app import app, db
+from app import app, db, socketio
 from models import Player, PlayerTask, PlayerSentence, CorrectSentence, CorrectCode, PlayerCode, task_names
-
 
 @app.route('/')
 def index():
     players = Player.query.order_by(Player.name).all()
-    recent_tasks = PlayerTask.query.order_by(PlayerTask.completed_at.desc()).limit(3).all()
-    return render_template('index.html', players=players, recent_tasks=recent_tasks, task_names=task_names)
+    return render_template('index.html', players=players, task_names=task_names)
 
 @app.route('/api/players', methods=['GET'])
 def get_players():
@@ -77,6 +75,8 @@ def complete_task():
     
     db.session.commit()
     
+    notify_clients()
+    
     return jsonify({
         'success': True,
         'player_name': player.name,
@@ -96,6 +96,7 @@ def get_recent_tasks():
             'type': 'task',
             'timestamp': task.completed_at
         })
+    
     recent_codes = db.session.query(PlayerCode, CorrectCode).\
         join(CorrectCode, PlayerCode.sentence == CorrectCode.sentence).\
         order_by(PlayerCode.created_at.desc()).all()
@@ -106,12 +107,17 @@ def get_recent_tasks():
             'player': {
                 'name': player.name
             },
-            'task_name': f"poprawnie rozszyfrowała hasło. {player.name} otrzymała {correct_code.bonus_type}",
+            'task_name': f"Klasa {player.name} poprawnie rozszyfrowała hasło. {player.name} otrzymała {correct_code.bonus_type}",
             'type': 'code',
             'timestamp': player_code.created_at
         })
+    
     tasks = sorted(tasks, key=lambda x: x['timestamp'], reverse=True)[:1]
     return jsonify({'recent_tasks': tasks})
+
+def notify_clients():
+    tasks = get_recent_tasks().json['recent_tasks']
+    socketio.emit('new_task', tasks)
 
 @app.route('/submit_sentence', methods=['POST'])
 def submit_sentence():
@@ -124,6 +130,7 @@ def submit_sentence():
     
     player = Player.query.get_or_404(player_id)
     cell_number = player.result
+    print(cell_number)
     player_sentence = PlayerSentence(
         player_id=player_id,
         sentence=sentence
@@ -169,9 +176,17 @@ def submit_code():
     correct_code = CorrectCode.query.filter_by(sentence=code).first()
     
     if correct_code:
+        # Append the bonus to the player's bonus list
+        if player.bonus:
+            player.bonus += f", {correct_code.bonus_type}"
+        else:
+            player.bonus = correct_code.bonus_type
+        db.session.commit()
         flash(f'Szyfr jest poprawny. Otrzymałeś {correct_code.bonus_type}.', 'success')
     else:
         flash('Szyfr jest niepoprawny. Spróbuj ponownie.', 'error')
+    
+    notify_clients()
     
     return redirect(url_for('code_form'))
 
@@ -180,3 +195,6 @@ def code_form():
     players = Player.query.order_by(Player.name).all()
     subjects = CorrectCode.query.with_entities(CorrectCode.subject).distinct().all()
     return render_template('code_form.html', players=players, subjects=subjects)
+
+if __name__ == '__main__':
+    socketio.run(app)
