@@ -5,41 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gra</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <style>
-
-  </style>
 </head>
 <body>
-    <div class="task-notifications" id="task-notifications">
-      {% if recent_tasks %}
-        {% for task in recent_tasks %}
-        <div class="task-alert">
-          Klasa {{ task.player.name }} ukończyła {{ task_names[task.task_id] }}
-        </div>
-        {% endfor %}
-      {% endif %}
-    </div>
-  <h3 id="dice-result"></h3>
-  <div class="main-container">
-    <div class="class-buttons">
-      <div class="enable-player-container">
-        <select id="player-select" class="form-control" required>
-          <option value="">Wybierz klasę</option>
-          {% for player in players %}
-          <option value="{{ player.id }}">{{ player.name }}</option>
-          {% endfor %}
-        </select>
-        <button id="enable-player-button" onclick="enablePlayerButton()">Odblokuj</button>
-      </div>
-      <hr>
-      {% for player in players %}
-      <div class="player-button-container">
-        <button id="roll-{{ player.id }}" data-player-id="{{ player.id }}" onclick="rollDiceForPlayer('{{ player.id }}')">{{ player.name }}</button>
-        <span class="bonus-icon" onclick="showBonusModal('{{ player.id }}')">🎁</span>
+  <h1>Dzień matematyki 2025</h1>
+  <div class="task-notifications" id="task-notifications">
+    {% if recent_tasks %}
+      {% for task in recent_tasks %}
+      <div class="task-completion-alert">
+        Klasa {{ task.player.name }} ukończyła {{ task_names[task.task_id] }}
       </div>
       {% endfor %}
-    </div>
-    <div class="chalkboard">
+    {% endif %}
+  </div>
+  <h3 id="dice-result" class="dice-roll-result-alert"></h3>
+  <div class="main-container">
+    <div class="column chalkboard">
       <div class="snake-path">
       </div>
       <div class="pawns">
@@ -48,7 +28,7 @@
         {% endfor %}
       </div>
     </div>
-    <div class="controls">
+    <div class="column controls">
       <div class="dice-container">
         <div class="dice">
           <ol class="die-list even-roll" data-roll="1" id="die-1">
@@ -93,6 +73,10 @@
           <tr>
             <th>Klasa</th>
             <th>Pole</th>
+            <th>Bonus +1</th>
+            <th>Bonus +2</th>
+            <th>Bonus +3</th>
+            <th>Akcja</th>
           </tr>
         </thead>
         <tbody>
@@ -100,19 +84,31 @@
           <tr data-player-id="{{ player.id }}">
             <td>{{ player.name }}</td>
             <td class="player-result">{{ player.result }}</td>
+            <td>
+              <input type="checkbox" id="bonus-plus-one-{{ player.id }}" data-player-id="{{ player.id }}" {% if player.bonus_plus_one %}checked{% endif %} onchange="updateBonus('{{ player.id }}', 'bonus_plus_one', this.checked)">
+            </td>
+            <td>
+              <input type="checkbox" id="bonus-plus-two-{{ player.id }}" data-player-id="{{ player.id }}" {% if player.bonus_plus_two %}checked{% endif %} onchange="updateBonus('{{ player.id }}', 'bonus_plus_two', this.checked)">
+            </td>
+            <td>
+              <input type="checkbox" id="bonus-plus-three-{{ player.id }}" data-player-id="{{ player.id }}" {% if player.bonus_plus_three %}checked{% endif %} onchange="updateBonus('{{ player.id }}', 'bonus_plus_three', this.checked)">
+            </td>
+            <td class="player-actions">
+              <div>
+                <button id="roll-{{ player.id }}" data-player-id="{{ player.id }}" onclick="rollDiceForPlayer('{{ player.id }}')">Rzuć kostką</button>
+                <button onclick="enablePlayerButton('{{ player.id }}')">Odblokuj</button>
+              </div>
+              <div class="bonus-actions">
+                <button onclick="activateBonus('{{ player.id }}', 'bonus_plus_one')">Aktywuj +1</button>
+                <button onclick="activateBonus('{{ player.id }}', 'bonus_plus_two')">Aktywuj +2</button>
+                <button onclick="activateBonus('{{ player.id }}', 'bonus_plus_three')">Aktywuj +3</button>
+              </div>
+            </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
       <button id="reset-game">Resetuj grę</button>
-    </div>
-  </div>
-  <div id="bonusModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeBonusModal()">&times;</span>
-      <h2>Dostępne bonusy</h2>
-      <ul id="bonus-list">
-      </ul>
     </div>
   </div>
 
@@ -125,10 +121,7 @@
   <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
   <script src="{{ url_for('static', filename='js/lib/socket.io.js') }}"></script>
   <script type="module">
-    import { enablePlayerButton, showBonusModal, closeBonusModal } from './static/js/board.js';
-    document.getElementById('enable-player-button').onclick = enablePlayerButton;
-    window.showBonusModal = showBonusModal;
-    window.closeBonusModal = closeBonusModal;
+    import { enablePlayerButton } from './static/js/board.js';
   </script>
 </body>
 </html>

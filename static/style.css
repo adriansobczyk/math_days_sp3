@@ -1,13 +1,7 @@
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
-  overflow: hidden;
   font-family: "Gill Sans Extrabold", sans-serif;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 body {
@@ -45,8 +39,17 @@ body {
     0 0;
 }
 
+h1 {
+  text-align: center;
+}
+
 h3 {
   margin: 0.75rem 0;
+  text-align: center;
+}
+
+ul {
+  list-style-type: none;
 }
 
 button:disabled {
@@ -58,15 +61,19 @@ button:disabled {
 
 .main-container {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: flex-start;
   width: 100%;
-  padding: 5px;
 }
+
+.column {
+  padding: 10px;
+}
+
 
 .chalkboard {
   position: relative;
-  width: 45rem;
+  width: 50%;
   height: 650px;
   background: #2b5329;
   border: 20px solid #4a2506;
@@ -74,41 +81,69 @@ button:disabled {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
   padding: 10px;
   color: white;
-  margin-left: 10rem;
-  margin-right: 4rem;
+  margin-left: 2rem;
 }
-
 
 .controls {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  width: 50%;
   background: #fff;
   color: #333;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  margin-left: 4rem;
+  margin-right: 2rem;
+}
+
+
+#score-table {
+  margin-top: 20px;
+  width: 100%;
+  border-collapse: collapse;
+  text-align: end;
+}
+
+#score-table th,
+#score-table td {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #ddd;
+  color: #333;
+}
+
+#score-table th {
+  background: #f5f5f5;
+}
+
+td.player-actions button {
+  margin: 0 5px;
+  font-size: 0.75rem;
+}
+
+.bonus-actions {
+  display: flex;
+  justify-content: center;
+  font-size: 0.75rem;
+  margin-top: 5px;
+
+}
+td input {
+  pointer-events: none;
 }
 
 .task-notifications {
   display: flex;
   flex-direction: column;
   margin-top: 1.5rem;
+  text-align: center;
 }
 
-.class-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  margin: 0;
-  max-width: 15%;
+#reset-game {
+  background-color: #c62828;
 }
-
-.class-buttons button {
-  margin: 5px;
-  width: calc(33.33% - 10px);
-  box-sizing: border-box;
-}
-
 .snake-path {
   position: relative;
   width: 100%;
@@ -217,18 +252,15 @@ button:hover {
   margin: 5px 0 15px;
 }
 
-.enable-player-container {
-  margin-left: 5px;
+.bonus-icon {
+  cursor: pointer;
+  margin-left: 3px;
 }
 
 #bonusModal {
   z-index: 100;
 }
 
-.bonus-icon {
-  cursor: pointer;
-  margin-left: 3px;
-}
 .modal {
   display: none;
   position: fixed;
@@ -238,50 +270,69 @@ button:hover {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgb(0,0,0);
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0, 0, 0, 0.6);
   padding-top: 60px;
+  transition: opacity 0.3s ease;
 }
+
 .modal-content {
-  background-color: #fefefe;
+  background-color: #fff;
   margin: 5% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 50%;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: 40%;
+  max-width: 600px;
+  animation: slide-down 0.4s ease;
 }
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 .close {
   color: #aaa;
   float: right;
   font-size: 28px;
   font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s ease;
 }
+
 .close:hover,
 .close:focus {
-  color: black;
+  color: #000;
   text-decoration: none;
-  cursor: pointer;
 }
 
-#score-table {
-  margin-top: 20px;
-  width: 100%;
-  border-collapse: collapse;
-  text-align: end;
+.modal-content h2 {
+  margin-top: 0;
+  font-size: 24px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
 }
 
-#score-table th,
-#score-table td {
-  padding: 8px;
-  text-align: center;
-  border: 1px solid #ddd;
-  color: #333;
+.modal-content ul {
+  list-style: none;
+  padding: 0;
 }
 
-#score-table th {
-  background: #f5f5f5;
+.modal-content ul li {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
 }
 
-/* Add these styles to your existing style.css */
+.modal-content ul li:last-child {
+  border-bottom: none;
+}
+
 
 /* Dice styles */
 .dice {
@@ -456,10 +507,6 @@ button:hover {
   grid-area: nine;
 }
 
-
-
-/* Add these styles to your existing style.css file */
-
 .task-completions {
   margin: 15px auto;
   max-width: 600px;
@@ -472,9 +519,20 @@ button:hover {
   margin-bottom: 10px;
   border: 1px solid #c3e6cb;
   border-radius: 4px;
-  font-weight: bold;
+  font-weight: semi-bold;
   text-align: center;
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fadeIn 0.7s ease-in-out;
+}
+
+.dice-roll-result-alert {
+  background-color: #7293b6;
+  color: #18395b;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
+  text-align: center;
+  animation: fadeIn 0.7s ease-in-out;
 }
 
 @keyframes fadeIn {
@@ -498,7 +556,6 @@ button:hover {
   background-color: #5a6268;
 }
 
-/* Styles for the task form page */
 .task-form {
   background: #f5f5f5;
   border: 1px solid #ddd;
@@ -555,18 +612,6 @@ button:hover {
   display: block;
   text-align: center;
   margin: 20px;
-}
-
-
-.task-alert {
-  background-color: #d4edda;
-  color: #155724;
-  padding: 10px;
-  margin-bottom: 8px;
-  border: 1px solid #c3e6cb;
-  border-radius: 4px;
-  text-align: center;
-  font-size: 1.25rem;
 }
 
 .task-button {

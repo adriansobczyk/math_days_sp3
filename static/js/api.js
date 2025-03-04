@@ -8,6 +8,7 @@ async function fetchPlayers() {
   try {
     const response = await fetch('/api/players');
     players = await response.json();
+    console.log('Players fetched:', players);
     return players;
   } catch (error) {
     console.error('Error fetching players:', error);
@@ -25,7 +26,7 @@ async function submitRoll(playerId, roll) {
       },
       body: JSON.stringify({ roll })
     });
-    
+    console.log('Roll submitted:', response.ok);
     return await response.json();
   } catch (error) {
     console.error('Error submitting roll:', error);
@@ -39,7 +40,7 @@ async function resetGame() {
     const response = await fetch('/reset', {
       method: 'POST'
     });
-    
+    console.log('Game reset:', response.ok);
     return response.ok;
   } catch (error) {
     console.error('Error resetting game:', error);
@@ -51,6 +52,7 @@ async function resetGame() {
 async function fetchRecentTasks() {
   try {
     const response = await fetch('/get_recent_tasks');
+    console.log('Recent tasks fetched:', response.ok);
     return await response.json();
   } catch (error) {
     console.error('Error fetching recent tasks:', error);
@@ -58,4 +60,24 @@ async function fetchRecentTasks() {
   }
 }
 
-export { players, fetchPlayers, submitRoll, resetGame, fetchRecentTasks };
+// Update player bonus status
+async function updateBonus(playerId, bonusType, isChecked) {
+  try {
+    const response = await fetch(`/api/players/${playerId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ [bonusType]: isChecked }),
+    });
+
+    const data = await response.json();
+    console.log('Bonus zaktualizowany:', data);
+    return data;
+  } catch (error) {
+    console.error('Error updating bonus:', error);
+    throw error;
+  }
+}
+
+export { players, fetchPlayers, submitRoll, resetGame, fetchRecentTasks, updateBonus };

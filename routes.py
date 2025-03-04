@@ -1,6 +1,7 @@
 from flask import render_template, request, jsonify, redirect, url_for, flash
 from app import app, db, socketio
 from models import Player, PlayerTask, PlayerSentence, CorrectSentence, CorrectCode, PlayerCode, task_names
+import random
 
 @app.route('/')
 def index():
@@ -19,8 +20,12 @@ def update_player(player_id):
     
     if 'result' in data:
         player.result = data['result']
-    if 'bonus' in data:
-        player.bonus = data['bonus']
+    if 'bonus_plus_one' in data:
+        player.bonus_plus_one = data['bonus_plus_one']
+    if 'bonus_plus_two' in data:
+        player.bonus_plus_two = data['bonus_plus_two']
+    if 'bonus_plus_three' in data:
+        player.bonus_plus_three = data['bonus_plus_three']
     if 'task_done' in data:
         player.task_done = data['task_done']
     
@@ -40,11 +45,40 @@ def roll_dice(player_id):
         'roll': roll_value
     })
 
+@app.route('/api/activate_bonus/<int:player_id>', methods=['POST'])
+def activate_bonus(player_id):
+    player = Player.query.get_or_404(player_id)
+    data = request.json
+    bonus_type = data.get('bonusType')
+
+    if bonus_type == 'bonus_plus_one':
+        player.result += 1
+    elif bonus_type == 'bonus_plus_two':
+        player.result += 2
+    elif bonus_type == 'bonus_plus_three':
+        player.result += 3
+    else:
+        return jsonify({'error': 'Invalid bonus type'}), 400
+
+    db.session.commit()
+    return jsonify({
+        'message': f'{bonus_type} został aktywowany dla {player.name}',
+        'new_result': player.result,
+        'player': player.to_dict()
+    })
+
+@app.route('/api/players/latest', methods=['GET'])
+def get_latest_players():
+    players = Player.query.all()
+    return jsonify([player.to_dict() for player in players])
+
 @app.route('/reset', methods=['POST'])
 def reset_game():
     players = Player.query.all()
     for player in players:
         player.result = 0
+        player.bonus = None
+        player.task_done = False
     db.session.commit()
     return jsonify({'success': True})
 
@@ -107,7 +141,7 @@ def get_recent_tasks():
             'player': {
                 'name': player.name
             },
-            'task_name': f"Klasa {player.name} poprawnie rozszyfrowała hasło. {player.name} otrzymała {correct_code.bonus_type}",
+            'task_name': f"{player.name} poprawnie rozszyfrowała hasło i otrzymała {correct_code.bonus_type} do przodu.",
             'type': 'code',
             'timestamp': player_code.created_at
         })
@@ -130,7 +164,6 @@ def submit_sentence():
     
     player = Player.query.get_or_404(player_id)
     cell_number = player.result
-    print(cell_number)
     player_sentence = PlayerSentence(
         player_id=player_id,
         sentence=sentence
@@ -168,7 +201,6 @@ def submit_code():
         return redirect(url_for('code_form'))
     
     player = Player.query.get_or_404(player_id)
-    cell_number = player.current_cell 
     new_player_code = PlayerCode(player_id=player_id, sentence=code)
     db.session.add(new_player_code)
     db.session.commit()
@@ -176,12 +208,27 @@ def submit_code():
     correct_code = CorrectCode.query.filter_by(sentence=code).first()
     
     if correct_code:
-        # Append the bonus to the player's bonus list
-        if player.bonus:
-            player.bonus += f", {correct_code.bonus_type}"
-        else:
-            player.bonus = correct_code.bonus_type
+        print(correct_code.bonus_type)
+        # Update the player's bonus fields based on the bonus type
+        if correct_code.bonus_type == '+1':
+            player.bonus_plus_one = True
+        elif correct_code.bonus_type == '+2':
+            player.bonus_plus_two = True
+        elif correct_code.bonus_type == '+3':
+            player.bonus_plus_three = True
+        
         db.session.commit()
+
+        # Emit a bonus update event
+        socketio.emit('bonus_update', {
+            'player_id': player.id,
+            'bonuses': {
+                'bonus_plus_one': player.bonus_plus_one,
+                'bonus_plus_two': player.bonus_plus_two,
+                'bonus_plus_three': player.bonus_plus_three
+            }
+        })
+
         flash(f'Szyfr jest poprawny. Otrzymałeś {correct_code.bonus_type}.', 'success')
     else:
         flash('Szyfr jest niepoprawny. Spróbuj ponownie.', 'error')

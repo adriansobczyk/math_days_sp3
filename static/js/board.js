@@ -1,5 +1,6 @@
 import { pathCoordinates } from './config.js';
 import { fetchPlayers } from './api.js';
+import { getPathLength, updatePawnPosition, updateScoreTable } from './players.js';
 
 // Store cells for later reference
 let cells = [];
@@ -42,6 +43,7 @@ function generateBoard() {
 
   // Create connecting paths between cells
   generateConnectors(snakePath);
+  console.log('Plansza została wygenerowana.');
 }
 
 // Generate connectors between cells
@@ -78,8 +80,6 @@ function generateConnectors(snakePath) {
       connector.style.width = '10px';
       connector.style.left = `${current.x + 25}px`;
       connector.style.top = `${current.y + 30}px`;
-      
-      // Adjust rotation for direction
       const angle = Math.atan2(dy, dx) * (180 / Math.PI);
       connector.style.transform = `rotate(${angle}deg)`;
       connector.style.transformOrigin = 'center top';
@@ -89,54 +89,59 @@ function generateConnectors(snakePath) {
   }
 }
 
-// Get cell at position
 function getCell(position) {
   return cells[position];
 }
 
-function enablePlayerButton() {
-  const playerId = document.getElementById('player-select').value;
+function enablePlayerButton(playerId) {
   const rollButton = document.getElementById(`roll-${playerId}`);
   rollButton.disabled = false;
+  console.log(`Klasa ${playerId} może teraz rzucić kostką.`);
 }
 
-function showBonusModal(playerId) {
-  // Convert playerId to integer
-  playerId = parseInt(playerId, 10);
+async function activateBonus(playerId, bonusType) {
+  try {
+    const response = await fetch(`/api/activate_bonus/${playerId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ bonusType })
+    });
 
-  // Fetch the player object
-  const player = players.find(p => p.id === playerId); // Assuming players is an array of player objects
-  if (!player) {
-    console.error(`Player with ID ${playerId} not found`);
-    return;
+    if (!response.ok) {
+      throw new Error('Failed to activate bonus');
+    }
+
+    const result = await response.json();
+    console.log(`Bonus activated: ${result.message}`);
+
+    // Trigger dice roll animation and pawn movement
+    if (bonusType === 'bonus_plus_three') {
+      const player = result.player;
+      const newPosition = Math.min(player.result, getPathLength() - 1);
+      const pawn = document.querySelector(`.pawn[data-player-id="${playerId}"]`);
+      updatePawnPosition(pawn, newPosition);
+      updateScoreTable();
+    } else {
+      const player = result.player;
+      const newPosition = Math.min(player.result, getPathLength() - 1);
+      const pawn = document.querySelector(`.pawn[data-player-id="${playerId}"]`);
+      updatePawnPosition(pawn, newPosition);
+      updateScoreTable();
+    }
+  } catch (error) {
+    console.error('Error activating bonus:', error);
   }
-
-  const bonuses = player.bonus.split(','); // Assuming bonuses are stored as a comma-separated string
-  const bonusList = document.getElementById('bonus-list');
-  bonusList.innerHTML = '';
-  bonuses.forEach(bonus => {
-    const li = document.createElement('li');
-    li.textContent = bonus.trim();
-    bonusList.appendChild(li);
-  });
-  document.getElementById('bonusModal').style.display = 'block';
 }
 
-function closeBonusModal() {
-  document.getElementById('bonusModal').style.display = 'none';
-}
 
-// Close the modal when the user clicks anywhere outside of the modal
-window.onclick = function(event) {
-  const modal = document.getElementById('bonusModal');
-  if (event.target == modal) {
-    modal.style.display = 'none';
-  }
-}
-
-// Fetch players data when the page loads
 window.onload = function() {
   loadPlayers();
 }
 
-export { generateBoard, getCell, enablePlayerButton, showBonusModal, closeBonusModal };
+// Attach functions to the window object
+window.enablePlayerButton = enablePlayerButton;
+window.activateBonus = activateBonus;
+
+export { generateBoard, getCell, enablePlayerButton, activateBonus};
