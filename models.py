@@ -1,4 +1,4 @@
-from app import db
+from flask_app import db
 
 MATH_SHAPES = [
     'circle', 'square', 'triangle', 'hexagon', 'pentagon', 

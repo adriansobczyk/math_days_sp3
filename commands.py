@@ -1,4 +1,4 @@
-from app import app, db
+from flask_app import app, db
 from models import Player, CorrectSentence, CorrectCode, COLORS, MATH_SHAPES
 
 @app.cli.command("init-db")
