@@ -102,6 +102,7 @@ class CorrectSentence(db.Model):
     correct_sentence = db.Column(db.String(255), nullable=False)
     cell_number = db.Column(db.Integer, nullable=False)
     classroom = db.Column(db.String(50), nullable=False)
+    completed = db.Column(db.Boolean, default=False)
     
     def __repr__(self):
         return f'<CorrectSentence {self.cell_number} - {self.correct_sentence}>'
@@ -111,7 +112,8 @@ class CorrectSentence(db.Model):
             'id': self.id,
             'correct_sentence': self.correct_sentence,
             'cell_number': self.cell_number,
-            'classroom': self.classroom
+            'classroom': self.classroom,
+            'completed': self.completed
         }
 
 class PlayerCode(db.Model):

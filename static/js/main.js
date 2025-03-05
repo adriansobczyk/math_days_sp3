@@ -1,7 +1,7 @@
 import { generateBoard } from './board.js';
 import { initializePawns, resetPawns } from './players.js';
 import { rollDiceForPlayer, resetDice } from './dice.js';
-import { resetGame } from './api.js';
+import { resetGame, fetchPlayers } from './api.js';
 import { setupNotifications } from './notification.js';
 
 // Initialize the game
@@ -38,8 +38,19 @@ async function handleResetGame() {
   if (success) {
     resetPawns();
     resetDice();
-    initializePawns();
+    await initializePawns();
+    await resetBonuses();
   }
+}
+
+// Reset bonuses for all players
+async function resetBonuses() {
+  const players = await fetchPlayers();
+  players.forEach(player => {
+    document.getElementById(`bonus-plus-one-${player.id}`).checked = player.bonus_plus_one;
+    document.getElementById(`bonus-plus-two-${player.id}`).checked = player.bonus_plus_two;
+    document.getElementById(`bonus-plus-three-${player.id}`).checked = player.bonus_plus_three;
+  });
 }
 
 // Initialize on DOM content loaded

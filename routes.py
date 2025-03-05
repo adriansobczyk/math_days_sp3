@@ -79,6 +79,10 @@ def reset_game():
         player.result = 0
         player.bonus = None
         player.task_done = False
+        player.bonus_plus_one = False
+        player.bonus_plus_two = False
+        player.bonus_plus_three = False
+    PlayerTask.query.delete()
     db.session.commit()
     return jsonify({'success': True})
 
@@ -170,10 +174,16 @@ def submit_sentence():
     )
     db.session.add(player_sentence)
     db.session.commit()
+    
     correct_sentence = CorrectSentence.query.filter_by(cell_number=cell_number, correct_sentence=sentence).first()
     
     if correct_sentence:
-        flash(f'Hasło poprawne. Pójdź do {correct_sentence.classroom}.', 'success')
+        if correct_sentence.completed:
+            flash('To hasło zostało już odgadnięte.', 'error')
+        else:
+            correct_sentence.completed = True
+            db.session.commit()
+            flash(f'Hasło poprawne. Pójdź do {correct_sentence.classroom}.', 'success')
     else:
         flash('Niepoprawne hasło.', 'error')
     

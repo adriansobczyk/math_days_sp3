@@ -2,7 +2,15 @@ import { players, fetchPlayers } from './api.js';
 import { getMathShape } from './config.js';
 import { getCell } from './board.js';
 
-// Update score table with current data
+// function updateScoreTable() {
+//   players.forEach(player => {
+//     const row = document.querySelector(`#score-table tr[data-player-id="${player.id}"]`);
+//     if (row) {
+//       row.querySelector('.player-result').textContent = player.result;
+//     }
+//   });
+// }
+
 function updateScoreTable() {
   players.forEach(player => {
     const row = document.querySelector(`#score-table tr[data-player-id="${player.id}"]`);
