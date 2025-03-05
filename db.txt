@@ -1,4 +1,0 @@
-
-host: dnimatematykisp3zabki.mysql.pythonanywhere-services.com
-username: dnimatematykisp3
-haslo: sp3zabkidb

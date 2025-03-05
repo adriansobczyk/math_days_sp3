@@ -1,5 +1,5 @@
 from flask import render_template, request, jsonify, redirect, url_for, flash
-from flask_app import app, db, socketio
+from app import app, db, socketio
 from models import Player, PlayerTask, PlayerSentence, CorrectSentence, CorrectCode, PlayerCode, task_names
 import random
 
