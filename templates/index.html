@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gra</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 </head>
 <body>
   <h1>Dzień matematyki 2025</h1>
@@ -119,7 +120,6 @@
   <script type="module" src="{{ url_for('static', filename='js/dice.js') }}"></script>
   <script type="module" src="{{ url_for('static', filename='js/notification.js') }}"></script>
   <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/lib/socket.io.js') }}"></script>
   <script type="module">
     import { enablePlayerButton } from './static/js/board.js';
   </script>
