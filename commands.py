@@ -7,12 +7,24 @@ def init_db():
     db.create_all()
     
     player_names = ['4a', '4b', '4c', '4d']
+    used_shapes = set()
+    
     for i, player_name in enumerate(player_names):
         if not Player.query.filter_by(name=player_name).first():
+            color = COLORS[i % len(COLORS)]
+            shape_index = i % len(MATH_SHAPES)
+            
+            # Find a unique shape if possible
+            while MATH_SHAPES[shape_index] in used_shapes and len(used_shapes) < len(MATH_SHAPES):
+                shape_index = (shape_index + 1) % len(MATH_SHAPES)
+            
+            shape = MATH_SHAPES[shape_index]
+            used_shapes.add(shape)
+            
             player = Player(
                 name=player_name,
-                color=COLORS[i % len(COLORS)],
-                shape=MATH_SHAPES[i % len(MATH_SHAPES)]
+                color=color,
+                shape=shape
             )
             db.session.add(player)
     

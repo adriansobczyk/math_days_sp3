@@ -1,17 +1,18 @@
 from app import db
 
 MATH_SHAPES = [
-    'circle', 'square', 'triangle', 'hexagon', 'pentagon', 
+    'circle', 'hexagon', 'pentagon', 
     'star', 'diamond', 'heart', 'cross', 'ellipse', 
-    'rectangle', 'trapezoid', 'parallelogram', 'rhombus', 'kite', 
-    'octagon', 'decagon', 'crescent', 'arrow', 'cylinder', 'cube'
+    'rectangle', 'trapezoid', 'parallelogram', 'rhombus',
+    'octagon', 'decagon', 'crescent', 'cube', 'oval', 
+    'shield', 'arrow', 'cloud', 'flower'
 ]
 
 COLORS = [
-    'red', 'blue', 'green', 'yellow', 'purple', 'orange', 
+    'red', 'blue', 'green', 'purple', 'orange', 
     'pink', 'brown', 'cyan', 'magenta', 'teal', 'lime', 
     'indigo', 'violet', 'maroon', 'olive', 'navy', 'coral', 
-    'gold', 'silver', 'gray'
+    'gold', 'silver', 'gray', 'black'
 ]
 
 task_names = {
