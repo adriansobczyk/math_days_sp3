@@ -2,7 +2,7 @@ import { generateBoard } from './board.js';
 import { initializePawns, resetPawns } from './players.js';
 import { rollDiceForPlayer, resetDice } from './dice.js';
 import { resetGame, fetchPlayers } from './api.js';
-import { setupNotifications } from './notification.js';
+import { pollRecentTasks, pollBonusUpdates } from './notification.js';
 
 // Initialize the game
 function initializeGame() {
@@ -12,8 +12,9 @@ function initializeGame() {
   // Fetch players and initialize pawns
   initializePawns();
   
-  // Setup task notifications
-  setupNotifications();
+  // Poll for task notifications and bonus updates
+  setInterval(pollRecentTasks, 3000);
+  setInterval(pollBonusUpdates, 3000);
   
   // Add event listeners to buttons
   addEventListeners();

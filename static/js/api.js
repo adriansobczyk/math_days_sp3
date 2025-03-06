@@ -1,4 +1,5 @@
 import { config } from './config.js';
+import { updateBonusCheckboxes } from './notification.js';
 
 // Global players data
 let players = [];
@@ -79,5 +80,21 @@ async function updateBonus(playerId, bonusType, isChecked) {
     throw error;
   }
 }
+
+// Poll for bonus updates every 3 seconds
+async function pollBonusUpdates() {
+  try {
+    const response = await fetch('/api/bonus_updates');
+    const data = await response.json();
+    data.forEach(update => {
+      updateBonusCheckboxes(update.player_id, update.bonuses);
+    });
+  } catch (error) {
+    console.error('Error polling bonus updates:', error);
+  }
+}
+
+// Call pollBonusUpdates every 3 seconds
+setInterval(pollBonusUpdates, 3000);
 
 export { players, fetchPlayers, submitRoll, resetGame, fetchRecentTasks, updateBonus };

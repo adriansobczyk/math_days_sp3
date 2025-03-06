@@ -1,9 +1,5 @@
 import { updateBonus } from './api.js';
 
-// Use the global io variable provided by the socket.io.js script
-const socket = io();
-
-// Update task notifications
 function updateTaskNotifications(tasks) {
   const taskNotifications = document.getElementById('task-notifications');
   taskNotifications.innerHTML = '';
@@ -22,21 +18,22 @@ function updateTaskNotifications(tasks) {
   });
 }
 
-// Update bonus checkboxes for a player
 function updateBonusCheckboxes(playerId, bonuses) {
-  const playerRow = document.querySelector(`tr[data-player-id="${playerId}"]`);
-  if (playerRow) {
-    const bonusPlusOne = playerRow.querySelector(`#bonus-plus-one-${playerId}`);
-    const bonusPlusTwo = playerRow.querySelector(`#bonus-plus-two-${playerId}`);
-    const bonusPlusThree = playerRow.querySelector(`#bonus-plus-three-${playerId}`);
+  const bonusPlusOneCheckbox = document.getElementById(`bonus_plus_one_${playerId}`);
+  const bonusPlusTwoCheckbox = document.getElementById(`bonus_plus_two_${playerId}`);
+  const bonusPlusThreeCheckbox = document.getElementById(`bonus_plus_three_${playerId}`);
 
-    if (bonusPlusOne) bonusPlusOne.checked = bonuses.bonus_plus_one;
-    if (bonusPlusTwo) bonusPlusTwo.checked = bonuses.bonus_plus_two;
-    if (bonusPlusThree) bonusPlusThree.checked = bonuses.bonus_plus_three;
+  if (bonusPlusOneCheckbox) {
+    bonusPlusOneCheckbox.checked = bonuses.bonus_plus_one;
+  }
+  if (bonusPlusTwoCheckbox) {
+    bonusPlusTwoCheckbox.checked = bonuses.bonus_plus_two;
+  }
+  if (bonusPlusThreeCheckbox) {
+    bonusPlusThreeCheckbox.checked = bonuses.bonus_plus_three;
   }
 }
 
-// Attach event listeners to bonus checkboxes
 function setupBonusCheckboxes() {
   document.querySelectorAll('.bonus-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', (event) => {
@@ -52,20 +49,35 @@ function setupBonusCheckboxes() {
   });
 }
 
-// Setup notifications and bonus updates
-function setupNotifications() {
-  // Listen for new tasks from the server
-  socket.on('new_task', (tasks) => {
-    updateTaskNotifications(tasks);
-  });
-
-  // Listen for bonus updates from the server
-  socket.on('bonus_update', (data) => {
-    updateBonusCheckboxes(data.player_id, data.bonuses);
-  });
-
-  // Attach event listeners to bonus checkboxes
-  setupBonusCheckboxes();
+// Poll for recent tasks every 3 seconds
+async function pollRecentTasks() {
+  try {
+    const response = await fetch('/get_recent_tasks');
+    const data = await response.json();
+    updateTaskNotifications(data.recent_tasks);
+  } catch (error) {
+    console.error('Error polling recent tasks:', error);
+  }
 }
 
-export { updateTaskNotifications, setupNotifications };
+// Poll for bonus updates every 3 seconds
+async function pollBonusUpdates() {
+  try {
+    const response = await fetch('/api/bonus_updates');
+    const data = await response.json();
+    data.forEach(update => {
+      updateBonusCheckboxes(update.player_id, update.bonuses);
+    });
+  } catch (error) {
+    console.error('Error polling bonus updates:', error);
+  }
+}
+
+// Call poll functions every 3 seconds
+setInterval(pollRecentTasks, 3000);
+setInterval(pollBonusUpdates, 3000);
+
+// Attach event listeners to bonus checkboxes
+setupBonusCheckboxes();
+
+export { updateTaskNotifications, updateBonusCheckboxes, pollBonusUpdates, pollRecentTasks };

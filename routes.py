@@ -1,7 +1,6 @@
 from flask import render_template, request, jsonify, redirect, url_for, flash
-from app import app, db, socketio
+from app import app, db
 from models import Player, PlayerTask, PlayerSentence, CorrectSentence, CorrectCode, PlayerCode, task_names
-import random
 
 @app.route('/')
 def index():
@@ -113,8 +112,6 @@ def complete_task():
     
     db.session.commit()
     
-    notify_clients()
-    
     return jsonify({
         'success': True,
         'player_name': player.name,
@@ -152,10 +149,6 @@ def get_recent_tasks():
     
     tasks = sorted(tasks, key=lambda x: x['timestamp'], reverse=True)[:1]
     return jsonify({'recent_tasks': tasks})
-
-def notify_clients():
-    tasks = get_recent_tasks().json['recent_tasks']
-    socketio.emit('new_task', tasks)
 
 @app.route('/submit_sentence', methods=['POST'])
 def submit_sentence():
@@ -201,6 +194,21 @@ def get_cell_number(player_id):
         return jsonify({'cell_number': player.result})
     return jsonify({'cell_number': None}), 404
 
+@app.route('/api/bonus_updates', methods=['GET'])
+def get_bonus_updates():
+    players = Player.query.all()
+    updates = []
+    for player in players:
+        updates.append({
+            'player_id': player.id,
+            'bonuses': {
+                'bonus_plus_one': player.bonus_plus_one,
+                'bonus_plus_two': player.bonus_plus_two,
+                'bonus_plus_three': player.bonus_plus_three
+            }
+        })
+    return jsonify(updates)
+
 @app.route('/submit_code', methods=['POST'])
 def submit_code():
     player_id = request.form.get('player_id')
@@ -229,21 +237,9 @@ def submit_code():
         
         db.session.commit()
 
-        # Emit a bonus update event
-        socketio.emit('bonus_update', {
-            'player_id': player.id,
-            'bonuses': {
-                'bonus_plus_one': player.bonus_plus_one,
-                'bonus_plus_two': player.bonus_plus_two,
-                'bonus_plus_three': player.bonus_plus_three
-            }
-        })
-
         flash(f'Szyfr jest poprawny. Otrzymałeś {correct_code.bonus_type}.', 'success')
     else:
         flash('Szyfr jest niepoprawny. Spróbuj ponownie.', 'error')
-    
-    notify_clients()
     
     return redirect(url_for('code_form'))
 
@@ -254,4 +250,4 @@ def code_form():
     return render_template('code_form.html', players=players, subjects=subjects)
 
 if __name__ == '__main__':
-    socketio.run(app)
+    app.run()
