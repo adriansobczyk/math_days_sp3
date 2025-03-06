@@ -528,7 +528,7 @@ button:hover {
   border-radius: 4px;
   font-weight: semi-bold;
   text-align: center;
-  animation: fadeIn 0.7s ease-in-out;
+  /* animation: fadeIn 0.7s ease-in-out; */
 }
 
 .dice-roll-result-alert {
@@ -539,7 +539,7 @@ button:hover {
   border: 1px solid #c3e6cb;
   border-radius: 4px;
   text-align: center;
-  animation: fadeIn 0.7s ease-in-out;
+  /* animation: fadeIn 0.7s ease-in-out; */
 }
 
 @keyframes fadeIn {
