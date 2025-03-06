@@ -94,7 +94,4 @@ async function pollBonusUpdates() {
   }
 }
 
-// Call pollBonusUpdates every 3 seconds
-setInterval(pollBonusUpdates, 3000);
-
 export { players, fetchPlayers, submitRoll, resetGame, fetchRecentTasks, updateBonus };

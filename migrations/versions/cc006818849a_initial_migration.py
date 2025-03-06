@@ -1,8 +1,8 @@
-"""Initial migration.
+"""Initial migration
 
-Revision ID: 5529002f22bf
+Revision ID: cc006818849a
 Revises: 
-Create Date: 2025-03-01 21:41:54.444275
+Create Date: 2025-03-06 20:14:40.710523
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5529002f22bf'
+revision = 'cc006818849a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -30,17 +30,20 @@ def upgrade():
     sa.Column('correct_sentence', sa.String(length=255), nullable=False),
     sa.Column('cell_number', sa.Integer(), nullable=False),
     sa.Column('classroom', sa.String(length=50), nullable=False),
+    sa.Column('completed', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('players',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=50), nullable=False),
     sa.Column('result', sa.Integer(), nullable=True),
-    sa.Column('bonus', sa.Integer(), nullable=True),
+    sa.Column('bonus_plus_one', sa.Boolean(), nullable=True),
+    sa.Column('bonus_plus_two', sa.Boolean(), nullable=True),
+    sa.Column('bonus_plus_three', sa.Boolean(), nullable=True),
     sa.Column('task_done', sa.Boolean(), nullable=True),
     sa.Column('color', sa.String(length=20), nullable=False),
     sa.Column('shape', sa.String(length=20), nullable=False),
-    sa.Column('current_cell', sa.Integer(), nullable=True),
+    sa.Column('roll_disabled', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('player_codes',

@@ -76,7 +76,8 @@
             <th>Bonus +1</th>
             <th>Bonus +2</th>
             <th>Bonus +3</th>
-            <th>Akcja</th>
+            <th>Rzut kostką</th>
+            <th>Bonusy</th>
           </tr>
         </thead>
         <tbody>
@@ -95,22 +96,33 @@
             </td>
             <td class="player-actions">
               <div>
-                <button id="roll-{{ player.id }}" data-player-id="{{ player.id }}" onclick="rollDiceForPlayer('{{ player.id }}')">Rzuć kostką</button>
-                <button onclick="enablePlayerButton('{{ player.id }}')">Odblokuj</button>
+                <button id="roll-{{ player.id }}" data-player-id="{{ player.id }}" onclick="rollDiceForPlayer('{{ player.id }}')" {% if player.roll_disabled %}disabled{% endif %}>Rzuć kostką</button>
+                <button onclick="enablePlayerButton('{{ player.id }}')" class="unblock-button">Odblokuj</button>
               </div>
-              <div class="bonus-actions">
-                <button onclick="activateBonus('{{ player.id }}', 'bonus_plus_one')">Aktywuj +1</button>
-                <button onclick="activateBonus('{{ player.id }}', 'bonus_plus_two')">Aktywuj +2</button>
-                <button onclick="activateBonus('{{ player.id }}', 'bonus_plus_three')">Aktywuj +3</button>
-              </div>
-            </td>
+              </td>
+              <td>
+                <div class="bonus-actions">
+                  <button onclick="activateBonus('{{ player.id }}', 'bonus_plus_one')" {% if not player.bonus_plus_one %}disabled{% endif %}>Aktywuj +1</button>
+                  <button onclick="activateBonus('{{ player.id }}', 'bonus_plus_two')" {% if not player.bonus_plus_two %}disabled{% endif %}>Aktywuj +2</button>
+                  <button onclick="activateBonus('{{ player.id }}', 'bonus_plus_three')" {% if not player.bonus_plus_three %}disabled{% endif %}>Aktywuj +3</button>
+                </div>
+              </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
+      <button id="show-notifications" class="notification-item">Pokaż wszystkie powiadomienia</button>
       <button id="reset-game">Resetuj grę</button>
     </div>
   </div>
+  
+  <div id="notificationsModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Powiadomienia</h2>
+        <div id="notifications-list"></div>
+    </div>
+</div>
 
   <script type="module" src="{{ url_for('static', filename='js/config.js') }}"></script>
   <script type="module" src="{{ url_for('static', filename='js/api.js') }}"></script>
@@ -120,7 +132,45 @@
   <script type="module" src="{{ url_for('static', filename='js/notification.js') }}"></script>
   <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
   <script type="module">
-    import { enablePlayerButton } from './static/js/board.js';
+      import { enablePlayerButton } from './static/js/board.js';
+
+      function formatDate(timestamp) {
+          const date = new Date(timestamp);
+          const day = String(date.getDate()).padStart(2, '0');
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const year = date.getFullYear();
+          const hours = String(date.getHours()).padStart(2, '0');
+          const minutes = String(date.getMinutes()).padStart(2, '0');
+          return `${day}-${month}-${year} ${hours}:${minutes}`;
+      }
+
+      document.getElementById('show-notifications').addEventListener('click', () => {
+          const modal = document.getElementById('notificationsModal');
+          modal.style.display = 'block';
+          fetch('/api/notifications')
+              .then(response => response.json())
+              .then(data => {
+                  const notificationsList = document.getElementById('notifications-list');
+                  notificationsList.innerHTML = '';
+                  data.forEach(notification => {
+                      const notificationItem = document.createElement('div');
+                      notificationItem.className = 'notification-item';
+                      notificationItem.textContent = `${formatDate(notification.timestamp)}: ${notification.message}`;
+                      notificationsList.appendChild(notificationItem);
+                  });
+              });
+      });
+
+      document.querySelector('#notificationsModal .close').addEventListener('click', () => {
+          document.getElementById('notificationsModal').style.display = 'none';
+      });
+
+      window.onclick = function(event) {
+          const modal = document.getElementById('notificationsModal');
+          if (event.target == modal) {
+              modal.style.display = 'none';
+          }
+      };
   </script>
 </body>
 </html>

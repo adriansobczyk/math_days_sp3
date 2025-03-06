@@ -1,27 +1,39 @@
 import { updateBonus } from './api.js';
 
+let displayedNotifications = new Set();
+
 function updateTaskNotifications(tasks) {
   const taskNotifications = document.getElementById('task-notifications');
-  taskNotifications.innerHTML = '';
   
   tasks.forEach(task => {
-    const taskAlert = document.createElement('div');
-    taskAlert.className = 'task-completion-alert';
+    const taskKey = `${task.type}-${task.player.name}-${task.task_name}-${task.timestamp}`;
     
-    if (task.type === 'task') {
-      taskAlert.textContent = `Klasa ${task.player.name} ukończyła ${task.task_name}`;
-    } else if (task.type === 'code') {
-      taskAlert.textContent = `Klasa ${task.task_name}`;
+    if (!displayedNotifications.has(taskKey)) {
+      const taskAlert = document.createElement('div');
+      taskAlert.className = 'task-completion-alert';
+      
+      if (task.type === 'task') {
+        taskAlert.textContent = `Klasa ${task.player.name} ukończyła ${task.task_name}`;
+      } else if (task.type === 'code') {
+        taskAlert.textContent = `Klasa ${task.task_name}`;
+      }
+      
+      taskNotifications.appendChild(taskAlert);
+      displayedNotifications.add(taskKey);
+
+      // Set a timeout to remove the notification after 10 seconds
+      setTimeout(() => {
+        taskAlert.remove();
+        displayedNotifications.delete(taskKey);
+      }, 10000); // 10000 milliseconds = 10 seconds
     }
-    
-    taskNotifications.appendChild(taskAlert);
   });
 }
 
 function updateBonusCheckboxes(playerId, bonuses) {
-  const bonusPlusOneCheckbox = document.getElementById(`bonus_plus_one_${playerId}`);
-  const bonusPlusTwoCheckbox = document.getElementById(`bonus_plus_two_${playerId}`);
-  const bonusPlusThreeCheckbox = document.getElementById(`bonus_plus_three_${playerId}`);
+  const bonusPlusOneCheckbox = document.getElementById(`bonus-plus-one-${playerId}`);
+  const bonusPlusTwoCheckbox = document.getElementById(`bonus-plus-two-${playerId}`);
+  const bonusPlusThreeCheckbox = document.getElementById(`bonus-plus-three-${playerId}`);
 
   if (bonusPlusOneCheckbox) {
     bonusPlusOneCheckbox.checked = bonuses.bonus_plus_one;
@@ -49,7 +61,7 @@ function setupBonusCheckboxes() {
   });
 }
 
-// Poll for recent tasks every 3 seconds
+// Poll for recent tasks
 async function pollRecentTasks() {
   try {
     const response = await fetch('/get_recent_tasks');
@@ -60,7 +72,7 @@ async function pollRecentTasks() {
   }
 }
 
-// Poll for bonus updates every 3 seconds
+// Poll for bonus updates
 async function pollBonusUpdates() {
   try {
     const response = await fetch('/api/bonus_updates');
@@ -72,10 +84,6 @@ async function pollBonusUpdates() {
     console.error('Error polling bonus updates:', error);
   }
 }
-
-// Call poll functions every 3 seconds
-setInterval(pollRecentTasks, 3000);
-setInterval(pollBonusUpdates, 3000);
 
 // Attach event listeners to bonus checkboxes
 setupBonusCheckboxes();

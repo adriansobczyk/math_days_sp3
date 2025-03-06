@@ -1,5 +1,5 @@
 import { config } from './config.js';
-import { players, fetchPlayers, submitRoll } from './api.js';
+import { players, fetchPlayers, submitRoll, updateBonus } from './api.js';
 import { updatePawnPosition, getPathLength, updateScoreTable } from './players.js';
 
 const diceResult = document.getElementById('dice-result');
@@ -61,8 +61,14 @@ async function rollDiceForPlayer(playerId, rollValue = null) {
       });
       
       config.isRolling = false;
-      rollButton.disabled = false;
+      // Keep the roll button disabled after the roll
+      rollButton.disabled = true;
     }, 1500);
+
+    // Update roll_disabled status
+    await updateBonus(playerIdNum, 'roll_disabled', true);
+    rollButton.disabled = true;
+
   } catch (error) {
     console.error('Error rolling dice:', error);
     config.isRolling = false;

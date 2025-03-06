@@ -35,6 +35,7 @@ class Player(db.Model):
     task_done = db.Column(db.Boolean, default=False)
     color = db.Column(db.String(20), nullable=False, default='blue')
     shape = db.Column(db.String(20), nullable=False, default='circle')
+    roll_disabled = db.Column(db.Boolean, default=False)
     
     def __repr__(self):
         return f'<Player {self.name}>'
@@ -49,7 +50,8 @@ class Player(db.Model):
             'bonus_plus_three': self.bonus_plus_three,
             'task_done': self.task_done,
             'color': self.color,
-            'shape': self.shape
+            'shape': self.shape,
+            'roll_disabled': self.roll_disabled
         }
 
 class PlayerTask(db.Model):
@@ -60,6 +62,7 @@ class PlayerTask(db.Model):
     task_id = db.Column(db.Integer, nullable=False)
     task_status = db.Column(db.Boolean, default=False)
     completed_at = db.Column(db.DateTime, default=db.func.now())
+    displayed = db.Column(db.Boolean, default=False)
     
     player = db.relationship('Player', backref=db.backref('tasks', lazy=True))
     
@@ -72,7 +75,8 @@ class PlayerTask(db.Model):
             'player_id': self.player_id,
             'task_id': self.task_id,
             'task_status': self.task_status,
-            'completed_at': self.completed_at
+            'completed_at': self.completed_at,
+            'displayed': self.displayed
         }
 
 class PlayerSentence(db.Model):
@@ -123,6 +127,7 @@ class PlayerCode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     player_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
     sentence = db.Column(db.String(255), nullable=False)
+    displayed = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=db.func.now())
     
     player = db.relationship('Player', backref=db.backref('codes', lazy=True))
@@ -135,6 +140,7 @@ class PlayerCode(db.Model):
             'id': self.id,
             'player_id': self.player_id,
             'sentence': self.sentence,
+            'displayed': self.displayed,
             'created_at': self.created_at
         }
 
@@ -155,4 +161,26 @@ class CorrectCode(db.Model):
             'subject': self.subject,
             'bonus_type': self.bonus_type,
             'sentence': self.sentence
+        }
+
+
+class PlayerNotification(db.Model):
+    __tablename__ = 'player_notifications'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    player_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
+    message = db.Column(db.String(255), nullable=False)
+    timestamp = db.Column(db.DateTime, default=db.func.now())
+    
+    player = db.relationship('Player', backref=db.backref('notifications', lazy=True))
+    
+    def __repr__(self):
+        return f'<PlayerNotification {self.player_id} - {self.message}>'
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'player_id': self.player_id,
+            'message': self.message,
+            'timestamp': self.timestamp
         }

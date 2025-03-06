@@ -13,8 +13,8 @@ function initializeGame() {
   initializePawns();
   
   // Poll for task notifications and bonus updates
-  setInterval(pollRecentTasks, 3000);
-  setInterval(pollBonusUpdates, 3000);
+  setInterval(pollRecentTasks, 5000);
+  setInterval(pollBonusUpdates, 5000);
   
   // Add event listeners to buttons
   addEventListeners();

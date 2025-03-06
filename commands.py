@@ -6,7 +6,7 @@ def init_db():
     db.drop_all()
     db.create_all()
     
-    player_names = ['4a', '4b', '4c', '4d']
+    player_names = ['4a', '4b', '4c', '4d', '4e']
     used_shapes = set()
     
     for i, player_name in enumerate(player_names):

@@ -6,7 +6,7 @@
   <title>Wpisz szyfr</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+<body class="centered-form">
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       {% for category, message in messages %}
@@ -34,5 +34,17 @@
       <button type="submit" class="submit-btn">Zatwierdź</button>
     </form>
   </div>
+
+  <script>
+    // Remove notifications after 10 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+      const notifications = document.querySelectorAll('.notification');
+      notifications.forEach(notification => {
+        setTimeout(() => {
+          notification.remove();
+        }, 10000); // 10000 milliseconds = 10 seconds
+      });
+    });
+  </script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 from flask import render_template, request, jsonify, redirect, url_for, flash
 from app import app, db
-from models import Player, PlayerTask, PlayerSentence, CorrectSentence, CorrectCode, PlayerCode, task_names
+from models import Player, PlayerTask, PlayerSentence, CorrectSentence, CorrectCode, PlayerCode, task_names, PlayerNotification
 
 @app.route('/')
 def index():
@@ -27,6 +27,8 @@ def update_player(player_id):
         player.bonus_plus_three = data['bonus_plus_three']
     if 'task_done' in data:
         player.task_done = data['task_done']
+    if 'roll_disabled' in data:
+        player.roll_disabled = data['roll_disabled']
     
     db.session.commit()
     return jsonify(player.to_dict())
@@ -37,6 +39,7 @@ def roll_dice(player_id):
     data = request.json
     roll_value = data.get('roll')
     player.result += roll_value
+    player.roll_disabled = True
     db.session.commit()
     
     return jsonify({
@@ -81,14 +84,20 @@ def reset_game():
         player.bonus_plus_one = False
         player.bonus_plus_two = False
         player.bonus_plus_three = False
+        player.roll_disabled = False
     PlayerTask.query.delete()
+    PlayerNotification.query.delete()
+    PlayerCode.query.delete()
+    PlayerSentence.query.delete()
+    CorrectSentence.query.delete()
+    CorrectCode.query.delete()
     db.session.commit()
     return jsonify({'success': True})
 
 @app.route('/zadania')
 def tasks_view():
     players = Player.query.order_by(Player.name).all()
-    recent_tasks = PlayerTask.query.order_by(PlayerTask.completed_at.desc()).limit(3).all()
+    recent_tasks = PlayerTask.query.order_by(PlayerTask.completed_at.desc()).limit(5).all()
     return render_template('tasks.html', players=players, task_names=task_names, recent_tasks=recent_tasks)
 
 @app.route('/complete_task', methods=['POST'])
@@ -118,11 +127,18 @@ def complete_task():
         'task_id': task_id
     })
 
+def save_notification(player_id, message):
+    notification = PlayerNotification(player_id=player_id, message=message)
+    db.session.add(notification)
+    db.session.commit()
+
+
 @app.route('/get_recent_tasks', methods=['GET'])
 def get_recent_tasks():
-    recent_tasks = PlayerTask.query.order_by(PlayerTask.completed_at.desc()).all()
+    recent_tasks = PlayerTask.query.filter_by(displayed=False).order_by(PlayerTask.completed_at.desc()).all()
     tasks = []
     for task in recent_tasks:
+        message = f'Klasa {task.player.name} ukończyła {task_names[task.task_id]}'
         tasks.append({
             'player': {
                 'name': task.player.name
@@ -131,24 +147,38 @@ def get_recent_tasks():
             'type': 'task',
             'timestamp': task.completed_at
         })
-    
+        task.displayed = True
+        save_notification(task.player_id, message)
+
     recent_codes = db.session.query(PlayerCode, CorrectCode).\
         join(CorrectCode, PlayerCode.sentence == CorrectCode.sentence).\
+        filter(PlayerCode.displayed == False).\
         order_by(PlayerCode.created_at.desc()).all()
     
     for player_code, correct_code in recent_codes:
         player = Player.query.get(player_code.player_id)
+        message = f"{player.name} poprawnie rozszyfrowała hasło i otrzymała {correct_code.bonus_type} do przodu."
         tasks.append({
             'player': {
                 'name': player.name
             },
-            'task_name': f"{player.name} poprawnie rozszyfrowała hasło i otrzymała {correct_code.bonus_type} do przodu.",
+            'task_name': message,
             'type': 'code',
             'timestamp': player_code.created_at
         })
-    
+        player_code.displayed = True
+        save_notification(player_code.player_id, message)
+
+    db.session.commit()
+
     tasks = sorted(tasks, key=lambda x: x['timestamp'], reverse=True)[:1]
     return jsonify({'recent_tasks': tasks})
+
+@app.route('/api/notifications', methods=['GET'])
+def get_notifications():
+    notifications = PlayerNotification.query.order_by(PlayerNotification.timestamp.desc()).all()
+    return jsonify([notification.to_dict() for notification in notifications])
+
 
 @app.route('/submit_sentence', methods=['POST'])
 def submit_sentence():

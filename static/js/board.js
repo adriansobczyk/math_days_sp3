@@ -1,5 +1,5 @@
 import { pathCoordinates } from './config.js';
-import { fetchPlayers } from './api.js';
+import { fetchPlayers, updateBonus } from './api.js';
 import { getPathLength, updatePawnPosition, updateScoreTable } from './players.js';
 
 let cells = [];
@@ -8,6 +8,7 @@ let players = [];
 async function loadPlayers() {
   players = await fetchPlayers();
 }
+
 function generateBoard() {
   const snakePath = document.querySelector('.snake-path');
   snakePath.innerHTML = '';
@@ -34,6 +35,7 @@ function generateBoard() {
   generateConnectors(snakePath);
   console.log('Plansza została wygenerowana.');
 }
+
 function generateConnectors(snakePath) {
   for (let i = 0; i < pathCoordinates.length - 1; i++) {
     const current = pathCoordinates[i];
@@ -72,10 +74,28 @@ function getCell(position) {
   return cells[position];
 }
 
-function enablePlayerButton(playerId) {
-  const rollButton = document.getElementById(`roll-${playerId}`);
-  rollButton.disabled = false;
-  console.log(`Klasa ${playerId} może teraz rzucić kostką.`);
+async function enablePlayerButton(playerId) {
+  try {
+    const response = await fetch(`/api/players/${playerId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ roll_disabled: false }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to enable player button');
+    }
+
+    const data = await response.json();
+    console.log(`Player ${playerId} roll_disabled set to false:`, data);
+
+    const rollButton = document.getElementById(`roll-${playerId}`);
+    rollButton.disabled = false;
+  } catch (error) {
+    console.error('Error enabling player button:', error);
+  }
 }
 
 async function activateBonus(playerId, bonusType) {
@@ -93,7 +113,7 @@ async function activateBonus(playerId, bonusType) {
     }
 
     const result = await response.json();
-    console.log(`Bonus activated: ${result.message}`);
+    console.log(`Bonus aktywowany: ${result.message}`);
     const updatedPlayer = result.player;
     const playerIndex = players.findIndex(p => p.id === updatedPlayer.id);
     if (playerIndex !== -1) {
@@ -109,6 +129,17 @@ async function activateBonus(playerId, bonusType) {
       playerResultCell.textContent = updatedPlayer.result;
     }
 
+    // Disable the bonus button and update the player's bonus status
+    if (bonusType === 'bonus_plus_one') {
+      updatedPlayer.bonus_plus_one = false;
+    } else if (bonusType === 'bonus_plus_two') {
+      updatedPlayer.bonus_plus_two = false;
+    } else if (bonusType === 'bonus_plus_three') {
+      updatedPlayer.bonus_plus_three = false;
+    }
+
+    document.querySelector(`button[onclick="activateBonus('${playerId}', '${bonusType}')"]`).disabled = true;
+
   } catch (error) {
     console.error('Error activating bonus:', error);
   }
@@ -121,4 +152,4 @@ window.onload = function() {
 window.enablePlayerButton = enablePlayerButton;
 window.activateBonus = activateBonus;
 
-export { generateBoard, getCell, enablePlayerButton, activateBonus};
+export { generateBoard, getCell, enablePlayerButton, activateBonus };

@@ -43,6 +43,7 @@ body {
 
 h1 {
   text-align: center;
+  margin: 2rem;
 }
 
 h3 {
@@ -102,7 +103,6 @@ button:disabled {
   overflow-y: auto;
 }
 
-
 #score-table {
   margin-top: 20px;
   width: 100%;
@@ -122,8 +122,8 @@ button:disabled {
   background: #f5f5f5;
 }
 
-td.player-actions button {
-  margin: 0 5px;
+td button {
+  margin: 0.25rem;
   font-size: 0.75rem;
 }
 
@@ -146,6 +146,7 @@ td input {
 }
 
 #reset-game {
+  margin-top: 0.75rem;
   background-color: #c62828;
 }
 .snake-path {
@@ -223,7 +224,7 @@ td input {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
   transition: all 0.3s ease;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.0), inset 0 -4px 8px rgba(0, 0, 0, 0.4);
@@ -256,6 +257,10 @@ button:hover {
   margin: 5px 0 15px;
 }
 
+button#show-notifications {
+  background-color: #155724;
+}
+
 .bonus-icon {
   cursor: pointer;
   margin-left: 3px;
@@ -268,7 +273,7 @@ button:hover {
 .modal {
   display: none;
   position: fixed;
-  z-index: 1;
+  z-index: 100;
   left: 0;
   top: 0;
   width: 100%;
@@ -286,8 +291,9 @@ button:hover {
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   width: 40%;
-  max-width: 600px;
+  max-width: 800px;
   animation: slide-down 0.4s ease;
+  font-size: 1.25rem;
 }
 
 @keyframes slide-down {
@@ -563,6 +569,19 @@ button:hover {
   background-color: #5a6268;
 }
 
+.centered-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: column;
+}
+
 .task-form {
   background: #f5f5f5;
   border: 1px solid #ddd;
@@ -603,7 +622,7 @@ button:hover {
 }
 
 .recent-tasks {
-  margin: 20px auto;
+  margin: 30px auto;
   max-width: 500px;
 }
 
@@ -653,4 +672,15 @@ input[type="text"] {
   background-color: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
+}
+
+.notification.success, .notification.error {
+  animation: fadeIn 0.7s ease-in-out;
+  position: fixed;
+  top: 5%;
+  font-size: 1.5rem;
+}
+
+.notification-item {
+  margin-bottom: 10px;
 }
