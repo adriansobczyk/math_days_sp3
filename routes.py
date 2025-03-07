@@ -242,7 +242,7 @@ def get_bonus_updates():
 @app.route('/submit_code', methods=['POST'])
 def submit_code():
     player_id = request.form.get('player_id')
-    code = request.form.get('code')
+    code = request.form.get('code').strip()  # Strip any extra spaces
     
     if not player_id or not code:
         flash('Klasa oraz szyfr jest wymagany.', 'error')
@@ -256,8 +256,7 @@ def submit_code():
     correct_code = CorrectCode.query.filter_by(sentence=code).first()
     
     if correct_code:
-        print(correct_code.bonus_type)
-        # Update the player's bonus fields based on the bonus type
+        print(f"Correct code found: {correct_code.sentence} with bonus type {correct_code.bonus_type}")
         if correct_code.bonus_type == '+1':
             player.bonus_plus_one = True
         elif correct_code.bonus_type == '+2':
@@ -269,6 +268,7 @@ def submit_code():
 
         flash(f'Szyfr jest poprawny. Otrzymałeś {correct_code.bonus_type}.', 'success')
     else:
+        print(f"Entered code: {code} does not match any correct code.")
         flash('Szyfr jest niepoprawny. Spróbuj ponownie.', 'error')
     
     return redirect(url_for('code_form'))
