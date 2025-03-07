@@ -571,6 +571,7 @@ button#show-notifications {
 
 .centered-form {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
@@ -683,4 +684,57 @@ input[type="text"] {
 
 .notification-item {
   margin-bottom: 10px;
+}
+
+
+@media (max-width: 1024px) {
+  .main-container {
+    display: flex;
+    flex-direction: column !important;
+    align-items: center;
+  }
+
+  .chalkboard, .controls {
+    width: 90%;
+    margin: 10px 0;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+
+  #score-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  #score-table th, #score-table td {
+    padding: 5px;
+    font-size: 12px;
+  }
+  h1 {
+    font-size: 1.8rem;
+    text-align: center;
+  }
+
+  button {
+    padding: 10px 15px;
+    font-size: 14px;
+  }
+  .dice-container {
+    transform: scale(0.8);
+  }
+
+  .pawn {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+  .modal-content {
+    width: 90%;
+    padding: 10px;
+  }
 }

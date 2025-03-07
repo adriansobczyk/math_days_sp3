@@ -8,6 +8,7 @@
   <script src="{{ url_for('static', filename='js/get_cell_number.js') }}" defer></script>
 </head>
 <body class="centered-form">
+  <h1>Wybierz klasę i wpisz hasło</h1>
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       {% for category, message in messages %}
