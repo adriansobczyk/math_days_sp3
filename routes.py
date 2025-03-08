@@ -212,7 +212,7 @@ def submit_sentence():
         else:
             correct_sentence.completed = True
             db.session.commit()
-            flash(f'Hasło poprawne. Pójdź do {correct_sentence.classroom}.', 'success')
+            flash(f'Hasło poprawne. Zadanie jest w {correct_sentence.classroom}.', 'success')
     else:
         flash('Niepoprawne hasło.', 'error')
     
