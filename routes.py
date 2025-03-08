@@ -89,8 +89,6 @@ def reset_game():
     PlayerNotification.query.delete()
     PlayerCode.query.delete()
     PlayerSentence.query.delete()
-    CorrectSentence.query.delete()
-    CorrectCode.query.delete()
     db.session.commit()
     return jsonify({'success': True})
 
@@ -118,6 +116,7 @@ def complete_task():
     )
     db.session.add(player_task)
     player.result += 1
+    player.task_done = True
     
     db.session.commit()
     

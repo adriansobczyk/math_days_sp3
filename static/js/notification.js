@@ -88,4 +88,42 @@ async function pollBonusUpdates() {
 // Attach event listeners to bonus checkboxes
 setupBonusCheckboxes();
 
+function formatDate(timestamp) {
+  const date = new Date(timestamp);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${day}-${month}-${year} ${hours}:${minutes}`;
+}
+
+document.getElementById('show-notifications').addEventListener('click', () => {
+  const modal = document.getElementById('notificationsModal');
+  modal.style.display = 'block';
+  fetch('/api/notifications')
+    .then(response => response.json())
+    .then(data => {
+      const notificationsList = document.getElementById('notifications-list');
+      notificationsList.innerHTML = '';
+      data.forEach(notification => {
+        const notificationItem = document.createElement('div');
+        notificationItem.className = 'notification-item';
+        notificationItem.textContent = `${formatDate(notification.timestamp)}: ${notification.message}`;
+        notificationsList.appendChild(notificationItem);
+      });
+    });
+});
+
+document.querySelector('#notificationsModal .close').addEventListener('click', () => {
+  document.getElementById('notificationsModal').style.display = 'none';
+});
+
+window.onclick = function(event) {
+  const modal = document.getElementById('notificationsModal');
+  if (event.target == modal) {
+    modal.style.display = 'none';
+  }
+};
+
 export { updateTaskNotifications, updateBonusCheckboxes, pollBonusUpdates, pollRecentTasks };

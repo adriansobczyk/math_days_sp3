@@ -23,7 +23,7 @@
       <div class="form-group">
         <label for="task-select">Wybierz zadanie:</label>
         <select id="task-select" name="task_id" class="form-control" required>
-          <option value="">-- Select Task --</option>
+          <option value="">-- Wybierz zadanie --</option>
           {% for task_id, task_name in task_names.items() %}
           <option value="{{ task_id }}">{{ task_name }}</option>
           {% endfor %}
@@ -37,12 +37,12 @@
       <p class="success-message" style="color: green; font-weight: bold;"></p>
     </div>
     <div id="loading" style="display: none; text-align: center;">
-      <p>Loading...</p>
+      <p>Ładowanie...</p>
     </div>
   </div>
   
   <div class="recent-tasks">
-    <div>Ostatnio ukończone zadania:</div>
+    <p>Ostatnio ukończone zadania:</p>
     {% if recent_tasks %}
       {% for task in recent_tasks %}
       <div class="task-item">

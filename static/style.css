@@ -108,6 +108,7 @@ button:disabled {
   width: 100%;
   border-collapse: collapse;
   text-align: end;
+  margin-bottom: 1rem;;
 }
 
 #score-table th,
@@ -290,8 +291,7 @@ button#show-notifications {
   padding: 30px;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  width: 40%;
-  max-width: 800px;
+  width: 60%;
   animation: slide-down 0.4s ease;
   font-size: 1.25rem;
 }
@@ -522,7 +522,7 @@ button#show-notifications {
 
 .task-completions {
   margin: 15px auto;
-  max-width: 600px;
+  /* max-width: 600px; */
 }
 
 .task-completion-alert {
@@ -572,10 +572,10 @@ button#show-notifications {
 .centered-form {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
   height: 100vh;
-  margin: 0;
+  margin-top: 6rem;
 }
 
 .flex-container {
@@ -589,9 +589,8 @@ button#show-notifications {
   border-radius: 5px;
   padding: 20px;
   margin: 20px auto;
-  max-width: 800px;
   font-size: 1.75rem;
-  width: 35rem;
+  width: 40%;
 }
 
 .form-group {
@@ -623,8 +622,9 @@ button#show-notifications {
 }
 
 .recent-tasks {
+  text-align: center;
   margin: 30px auto;
-  max-width: 500px;
+  max-width: 100%;
 }
 
 .task-item {
@@ -652,7 +652,7 @@ button#show-notifications {
 }
 
 input[type="text"] {
-  width: 96%;
+  width: 97.5%;
 }
 
 .notification {
@@ -698,6 +698,13 @@ input[type="text"] {
     width: 90%;
     margin: 10px 0;
   }
+  .task-form {
+    width: 70%;
+  }
+  .modal-content {
+    width: 70%;
+    padding: 10px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -736,5 +743,8 @@ input[type="text"] {
   .modal-content {
     width: 90%;
     padding: 10px;
+  }
+  .task-form {
+    width: 90%;
   }
 }
