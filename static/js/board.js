@@ -81,7 +81,10 @@ async function enablePlayerButton(playerId) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ roll_disabled: false }),
+      body: JSON.stringify({ 
+        roll_disabled: false,
+        task_done: false  // Reset task_done to false after enabling the roll button
+      }),
     });
 
     if (!response.ok) {
@@ -93,6 +96,12 @@ async function enablePlayerButton(playerId) {
 
     const rollButton = document.getElementById(`roll-${playerId}`);
     rollButton.disabled = false;
+    
+    // Disable the unblock button after it's been used
+    const unblockButton = document.getElementById(`unblock-${playerId}`);
+    if (unblockButton) {
+      unblockButton.disabled = true;
+    }
   } catch (error) {
     console.error('Error enabling player button:', error);
   }
@@ -100,6 +109,12 @@ async function enablePlayerButton(playerId) {
 
 async function activateBonus(playerId, bonusType) {
   try {
+    // Immediately disable the button to prevent multiple clicks
+    const bonusButton = document.querySelector(`button[onclick="activateBonus('${playerId}', '${bonusType}')"]`);
+    if (bonusButton) {
+      bonusButton.disabled = true;
+    }
+
     const response = await fetch(`/api/activate_bonus/${playerId}`, {
       method: 'POST',
       headers: {
@@ -109,6 +124,10 @@ async function activateBonus(playerId, bonusType) {
     });
 
     if (!response.ok) {
+      // Re-enable the button if the request fails
+      if (bonusButton) {
+        bonusButton.disabled = false;
+      }
       throw new Error('Failed to activate bonus');
     }
 
@@ -129,7 +148,7 @@ async function activateBonus(playerId, bonusType) {
       playerResultCell.textContent = updatedPlayer.result;
     }
 
-    // Disable the bonus button and update the player's bonus status
+    // Update the player's bonus status in the local data
     if (bonusType === 'bonus_plus_one') {
       updatedPlayer.bonus_plus_one = false;
     } else if (bonusType === 'bonus_plus_two') {
@@ -138,7 +157,16 @@ async function activateBonus(playerId, bonusType) {
       updatedPlayer.bonus_plus_three = false;
     }
 
-    document.querySelector(`button[onclick="activateBonus('${playerId}', '${bonusType}')"]`).disabled = true;
+    // Update checkbox state
+    const bonusCheckbox = document.getElementById(`${bonusType.replace('_', '-')}-${playerId}`);
+    if (bonusCheckbox) {
+      bonusCheckbox.checked = false;
+    }
+
+    // Ensure the button remains disabled
+    if (bonusButton) {
+      bonusButton.disabled = true;
+    }
 
   } catch (error) {
     console.error('Error activating bonus:', error);

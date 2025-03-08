@@ -2,20 +2,44 @@ import { players, fetchPlayers } from './api.js';
 import { getMathShape } from './config.js';
 import { getCell } from './board.js';
 
-// function updateScoreTable() {
-//   players.forEach(player => {
-//     const row = document.querySelector(`#score-table tr[data-player-id="${player.id}"]`);
-//     if (row) {
-//       row.querySelector('.player-result').textContent = player.result;
-//     }
-//   });
-// }
-
-function updateScoreTable() {
-  players.forEach(player => {
+// Update score table and button states
+async function updateScoreTable() {
+  const updatedPlayers = await fetchPlayers();
+  
+  updatedPlayers.forEach(player => {
+    // Update result cell
     const row = document.querySelector(`#score-table tr[data-player-id="${player.id}"]`);
     if (row) {
       row.querySelector('.player-result').textContent = player.result;
+      
+      // Update roll button state
+      const rollButton = document.getElementById(`roll-${player.id}`);
+      if (rollButton) {
+        rollButton.disabled = player.roll_disabled;
+      }
+      
+      // Update unblock button state
+      const unblockButton = row.querySelector('.unblock-button');
+      if (unblockButton) {
+        unblockButton.disabled = !player.task_done;
+      }
+      
+      // Update bonus checkboxes
+      const bonusOneCheck = document.getElementById(`bonus-plus-one-${player.id}`);
+      const bonusTwoCheck = document.getElementById(`bonus-plus-two-${player.id}`);
+      const bonusThreeCheck = document.getElementById(`bonus-plus-three-${player.id}`);
+      
+      if (bonusOneCheck) bonusOneCheck.checked = player.bonus_plus_one;
+      if (bonusTwoCheck) bonusTwoCheck.checked = player.bonus_plus_two;
+      if (bonusThreeCheck) bonusThreeCheck.checked = player.bonus_plus_three;
+      
+      // Update bonus activation buttons
+      const bonusButtons = row.querySelectorAll('.bonus-actions button');
+      if (bonusButtons.length >= 3) {
+        bonusButtons[0].disabled = !player.bonus_plus_one;
+        bonusButtons[1].disabled = !player.bonus_plus_two;
+        bonusButtons[2].disabled = !player.bonus_plus_three;
+      }
     }
   });
 }
@@ -51,7 +75,7 @@ function renderPawns() {
 // Update all pawns positions based on database data
 async function initializePawns() {
   const currentPlayers = await fetchPlayers();
-  updateScoreTable();
+  await updateScoreTable();
   renderPawns();
   
   const pawns = document.querySelectorAll('.pawn');
@@ -74,7 +98,7 @@ function updatePawnPosition(pawn, position) {
   const cell = getCell(position);
   if (!cell) return;
   
-  const pawnsInCell = Array.from(document.querySelectorAll('.pawn')).filter(p => 
+  const pawnsInCell = Array.from(document.querySelectorAll('.pawn')).filter(p =>
     parseInt(p.getAttribute('data-position')) === position
   );
   
@@ -92,10 +116,11 @@ function updatePawnPosition(pawn, position) {
   
   pawn.style.width = `${pawnSize}px`;
   pawn.style.height = `${pawnSize}px`;
-  pawn.style.left = `${offsetX + cellWidth / 2 - pawnSize / 2 + 
+  pawn.style.left = `${offsetX + cellWidth / 2 - pawnSize / 2 +
     (index - (pawnsInCell.length - 1) / 2) * (pawnSize + offset)}px`;
   pawn.style.top = `${offsetY + cellHeight / 2 - pawnSize / 2}px`;
 }
+
 // Get the total length of the path
 function getPathLength() {
   return 51; // Based on pathCoordinates length
@@ -112,11 +137,11 @@ function resetPawns() {
   });
 }
 
-export { 
-  updateScoreTable, 
-  renderPawns, 
-  initializePawns, 
-  updatePawnPosition, 
+export {
+  updateScoreTable,
+  renderPawns,
+  initializePawns,
+  updatePawnPosition,
   getPathLength,
   resetPawns
 };

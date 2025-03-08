@@ -41,6 +41,16 @@ body {
     0 0;
 }
 
+nav {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.extra-margin {
+  margin-top: 4rem;
+}
+
 h1 {
   text-align: center;
   margin: 2rem;
@@ -623,7 +633,6 @@ button#show-notifications {
 
 .recent-tasks {
   text-align: center;
-  margin: 30px auto;
   max-width: 100%;
 }
 
@@ -686,6 +695,14 @@ input[type="text"] {
   margin-bottom: 10px;
 }
 
+.greyed {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+select option:not(.greyed) {
+  color: #000;
+}
 
 @media (max-width: 1024px) {
   .main-container {

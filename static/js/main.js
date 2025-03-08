@@ -1,5 +1,5 @@
 import { generateBoard } from './board.js';
-import { initializePawns, resetPawns } from './players.js';
+import { initializePawns, resetPawns, updateScoreTable } from './players.js';
 import { rollDiceForPlayer, resetDice } from './dice.js';
 import { resetGame, fetchPlayers } from './api.js';
 import { pollRecentTasks, pollBonusUpdates } from './notification.js';
@@ -15,6 +15,9 @@ function initializeGame() {
   // Poll for task notifications and bonus updates
   setInterval(pollRecentTasks, 5000);
   setInterval(pollBonusUpdates, 5000);
+  
+  // Periodically update the UI with latest player data
+  setInterval(updateScoreTable, 3000);
   
   // Add event listeners to buttons
   addEventListeners();

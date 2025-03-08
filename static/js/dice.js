@@ -10,6 +10,13 @@ async function rollDiceForPlayer(playerId, rollValue = null) {
   config.isRolling = true;
   const rollButton = document.getElementById(`roll-${playerId}`);
   rollButton.disabled = true;
+  
+  // Also disable the unblock button when rolling dice
+  const unblockButton = document.getElementById(`unblock-${playerId}`);
+  if (unblockButton) {
+    unblockButton.disabled = true;
+  }
+  
   const playerIdNum = Number(playerId);
   const roll = rollValue !== null ? rollValue : Math.floor(Math.random() * 6) + 1;
   const dice = document.querySelector('.die-list');
@@ -63,11 +70,18 @@ async function rollDiceForPlayer(playerId, rollValue = null) {
       config.isRolling = false;
       // Keep the roll button disabled after the roll
       rollButton.disabled = true;
+      
+      // Also ensure the unblock button remains disabled
+      if (unblockButton) {
+        unblockButton.disabled = true;
+      }
     }, 1500);
 
     // Update roll_disabled status
     await updateBonus(playerIdNum, 'roll_disabled', true);
-    rollButton.disabled = true;
+    
+    // Also update the task_done property to false to keep the unblock button disabled
+    await updatePlayerTaskDone(playerIdNum, false);
 
   } catch (error) {
     console.error('Error rolling dice:', error);
@@ -76,6 +90,28 @@ async function rollDiceForPlayer(playerId, rollValue = null) {
    
     diceResult.textContent = 'Wystąpił błąd podczas rzutu kostką';
     diceResult.classList.remove('hidden');
+  }
+}
+
+// Helper function to update player's task_done status
+async function updatePlayerTaskDone(playerId, isDone) {
+  try {
+    const response = await fetch(`/api/players/${playerId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ task_done: isDone }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update player task status');
+    }
+
+    const data = await response.json();
+    console.log(`Player ${playerId} task_done set to ${isDone}:`, data);
+  } catch (error) {
+    console.error('Error updating player task status:', error);
   }
 }
 

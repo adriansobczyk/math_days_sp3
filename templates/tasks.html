@@ -3,15 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ukończ zadanie</title>
+  <title>Wpisz zadanie</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body class="centered-form flex-container">
-  <h1>Oznacz zadanie jako ukończone</h1>
+  <nav>
+    <button onclick="window.open('/zadania', '_blank')">Zadania</button>
+    <button onclick="window.open('/haslo', '_blank')">Hasła</button>
+    <button onclick="window.open('/szyfr', '_blank')">Szyfry</button>
+  </nav>
+  <h1>Wybierz klasę i oznacz zadanie jako ukończone</h1>
   <div class="task-form">
     <form id="complete-task-form">
       <div class="form-group">
-        <label for="player-select">Wybierz klasę:</label>
+        <label for="player-select">Klasa:</label>
         <select id="player-select" name="player_id" class="form-control" required>
           <option value="">-- Wybierz klasę --</option>
           {% for player in players %}
@@ -21,9 +26,9 @@
       </div>
       
       <div class="form-group">
-        <label for="task-select">Wybierz zadanie:</label>
+        <label for="task-select">Zadanie:</label>
         <select id="task-select" name="task_id" class="form-control" required>
-          <option value="">-- Wybierz zadanie --</option>
+          <option value="" class="greyed">-- Wybierz zadanie --</option>
           {% for task_id, task_name in task_names.items() %}
           <option value="{{ task_id }}">{{ task_name }}</option>
           {% endfor %}
@@ -42,7 +47,7 @@
   </div>
   
   <div class="recent-tasks">
-    <p>Ostatnio ukończone zadania:</p>
+    <p><strong>Ostatnio ukończone zadania:</strong></p>
     {% if recent_tasks %}
       {% for task in recent_tasks %}
       <div class="task-item">

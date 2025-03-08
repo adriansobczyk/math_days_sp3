@@ -9,7 +9,6 @@ async function fetchPlayers() {
   try {
     const response = await fetch('/api/players');
     players = await response.json();
-    console.log('Players fetched:', players);
     return players;
   } catch (error) {
     console.error('Error fetching players:', error);

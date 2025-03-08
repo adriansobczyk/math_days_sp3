@@ -7,7 +7,12 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <h1>Dzień matematyki 2025</h1>
+  <nav>
+    <button onclick="window.open('/zadania', '_blank')">Zadania</button>
+    <button onclick="window.open('/haslo', '_blank')">Hasła</button>
+    <button onclick="window.open('/szyfr', '_blank')">Szyfry</button>
+  </nav>
+  <h1 class="extra-margin">Dzień matematyki 2025</h1>
   <div class="task-notifications" id="task-notifications">
     {% if recent_tasks %}
       {% for task in recent_tasks %}
@@ -80,7 +85,7 @@
             <th>Bonusy</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="player-scores">
           {% for player in players %}
           <tr data-player-id="{{ player.id }}">
             <td>{{ player.name }}</td>
@@ -97,14 +102,14 @@
             <td class="player-actions">
               <div>
                 <button id="roll-{{ player.id }}" data-player-id="{{ player.id }}" onclick="rollDiceForPlayer('{{ player.id }}')" {% if player.roll_disabled %}disabled{% endif %}>Rzuć kostką</button>
-                <button onclick="enablePlayerButton('{{ player.id }}')" class="unblock-button" {% if not player.task_done %}disabled{% endif %}>Odblokuj</button>
+                <button id="unblock-{{ player.id }}" onclick="enablePlayerButton('{{ player.id }}')" class="unblock-button" {% if not player.task_done %}disabled{% endif %}>Odblokuj</button>
               </div>
               </td>
               <td>
                 <div class="bonus-actions">
-                  <button onclick="activateBonus('{{ player.id }}', 'bonus_plus_one')" {% if not player.bonus_plus_one %}disabled{% endif %}>Aktywuj +1</button>
-                  <button onclick="activateBonus('{{ player.id }}', 'bonus_plus_two')" {% if not player.bonus_plus_two %}disabled{% endif %}>Aktywuj +2</button>
-                  <button onclick="activateBonus('{{ player.id }}', 'bonus_plus_three')" {% if not player.bonus_plus_three %}disabled{% endif %}>Aktywuj +3</button>
+                  <button id="bonus-one-{{ player.id }}" onclick="activateBonus('{{ player.id }}', 'bonus_plus_one')" {% if not player.bonus_plus_one %}disabled{% endif %}>Aktywuj +1</button>
+                  <button id="bonus-two-{{ player.id }}" onclick="activateBonus('{{ player.id }}', 'bonus_plus_two')" {% if not player.bonus_plus_two %}disabled{% endif %}>Aktywuj +2</button>
+                  <button id="bonus-three-{{ player.id }}" onclick="activateBonus('{{ player.id }}', 'bonus_plus_three')" {% if not player.bonus_plus_three %}disabled{% endif %}>Aktywuj +3</button>
                 </div>
               </td>
           </tr>
