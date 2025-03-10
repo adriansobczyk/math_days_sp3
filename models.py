@@ -5,13 +5,12 @@ MATH_SHAPES = [
     'star', 'diamond', 'heart', 'cross', 'ellipse', 
     'rectangle', 'trapezoid', 'parallelogram', 'rhombus',
     'octagon', 'decagon', 'crescent', 'cube', 'oval', 
-    'shield', 'arrow', 'cloud', 'flower'
+    'shield', 'cloud'
 ]
 
 COLORS = [
-    'red', 'blue', 'green', 'purple', 'orange', 
-    'pink', 'brown', 'cyan', 'magenta', 'teal', 'lime', 
-    'indigo', 'violet', 'maroon', 'olive', 'navy', 'coral', 
+    'red', 'blue', 'purple', 'orange', 'brown', 'cyan', 'magenta', 'teal', 
+    'indigo', 'violet', 'maroon', 'navy', 'coral', 
     'gold', 'silver', 'gray', 'black'
 ]
 

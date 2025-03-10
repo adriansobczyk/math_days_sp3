@@ -1,15 +1,22 @@
 from app import app, db
 from models import Player, CorrectSentence, CorrectCode, COLORS, MATH_SHAPES
+import pandas as pd
 
 @app.cli.command("init-db")
 def init_db():
     db.drop_all()
     db.create_all()
     
-    player_names = ['4a', '4b', '4c', '4d', '4e', '5a', '6a', '7a']
-    used_shapes = set()
+    # Load data from Excel file
+    excel_file = 'init_db.xlsx'
+    sentences_df = pd.read_excel(excel_file, sheet_name='sentences')
+    codes_df = pd.read_excel(excel_file, sheet_name='codes')
+    players_df = pd.read_excel(excel_file, sheet_name='players')
     
-    for i, player_name in enumerate(player_names):
+    # Add players
+    used_shapes = set()
+    for i, row in players_df.iterrows():
+        player_name = row['name']
         if not Player.query.filter_by(name=player_name).first():
             color = COLORS[i % len(COLORS)]
             shape_index = i % len(MATH_SHAPES)
@@ -29,39 +36,27 @@ def init_db():
             db.session.add(player)
     
     db.session.commit()
-
     
     # Add sample data for CorrectSentence
-    sample_sentences = [
-        {"correct_sentence": "hasło 1", "cell_number": 1, "classroom_4th_grade": "Sala 4", "classroom_5th_grade": "Sala 5", "classroom_6th_grade": "Sala 6", "classroom_7th_grade": "Sala 7"},
-        {"correct_sentence": "hasło 2", "cell_number": 2, "classroom_4th_grade": "Sala 4", "classroom_5th_grade": "Sala 5", "classroom_6th_grade": "Sala 6", "classroom_7th_grade": "Sala 7"},
-        {"correct_sentence": "hasło 3", "cell_number": 3, "classroom_4th_grade": "Sala 4", "classroom_5th_grade": "Sala 5", "classroom_6th_grade": "Sala 6", "classroom_7th_grade": "Sala 7"},
-        {"correct_sentence": "hasło 4", "cell_number": 4, "classroom_4th_grade": "Sala 4", "classroom_5th_grade": "Sala 5", "classroom_6th_grade": "Sala 6", "classroom_7th_grade": "Sala 7"},
-        {"correct_sentence": "hasło 5", "cell_number": 5, "classroom_4th_grade": "Sala 4", "classroom_5th_grade": "Sala 5", "classroom_6th_grade": "Sala 6", "classroom_7th_grade": "Sala 7"},
-        {"correct_sentence": "hasło 6", "cell_number": 6, "classroom_4th_grade": "Sala 4", "classroom_5th_grade": "Sala 5", "classroom_6th_grade": "Sala 6", "classroom_7th_grade": "Sala 7"}
-    ]
-    
-    for sentence in sample_sentences:
+    for _, row in sentences_df.iterrows():
         correct_sentence = CorrectSentence(
-            correct_sentence=sentence["correct_sentence"],
-            cell_number=sentence["cell_number"],
-            classroom_4th_grade=sentence["classroom_4th_grade"]
+            correct_sentence=row['correct_sentence'],
+            cell_number=row['cell_number'],
+            classroom_4th_grade=row['classroom_4th_grade'],
+            classroom_5th_grade=row['classroom_5th_grade'],
+            classroom_6th_grade=row['classroom_6th_grade'],
+            classroom_7th_grade=row['classroom_7th_grade']
         )
         db.session.add(correct_sentence)
     
     db.session.commit()
     
-    sample_codes = [
-        {"subject": "matematyka", "bonus_type": "+1", "sentence": "Kod 1"},
-        {"subject": "biologia", "bonus_type": "+2", "sentence": "Kod 2"},
-        {"subject": "fizyka", "bonus_type": "+3", "sentence": "Kod 3"}
-    ]
-    
-    for code in sample_codes:
+    # Add sample data for CorrectCode
+    for _, row in codes_df.iterrows():
         correct_code = CorrectCode(
-            subject=code["subject"],
-            bonus_type=code["bonus_type"],
-            sentence=code["sentence"]
+            subject=row['subject'],
+            bonus_type='+' + str(row['bonus_type']),
+            sentence=row['code']
         )
         db.session.add(correct_code)
     
