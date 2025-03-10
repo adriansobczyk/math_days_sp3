@@ -212,7 +212,10 @@ def submit_sentence():
     db.session.add(player_sentence)
     db.session.commit()
     
-    correct_sentence = CorrectSentence.query.filter_by(cell_number=cell_number, correct_sentence=sentence).first()
+    correct_sentence = CorrectSentence.query.filter(
+        CorrectSentence.cell_number == cell_number,
+        CorrectSentence.correct_sentence.ilike(sentence)
+    ).first()
     
     if correct_sentence:
         if correct_sentence.completed:
@@ -238,6 +241,7 @@ def submit_sentence():
         flash('Niepoprawne hasło.', 'error')
     
     return redirect(url_for('sentence_form'))
+
 @app.route('/haslo')
 def sentence_form():
     players = Player.query.order_by(Player.name).all()
@@ -279,7 +283,8 @@ def submit_code():
     db.session.add(new_player_code)
     db.session.commit()
     
-    correct_code = CorrectCode.query.filter_by(sentence=code).first()
+    # correct_code = CorrectCode.query.filter_by(sentence=code).first()
+    correct_code = CorrectCode.query.filter(CorrectCode.sentence.ilike(code)).first() # Case-insensitive search
     
     if correct_code:
         print(f"Correct code found: {correct_code.sentence} with bonus type {correct_code.bonus_type}")
