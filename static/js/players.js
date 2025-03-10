@@ -95,6 +95,7 @@ async function initializePawns() {
 }
 
 // Update pawn position
+// Update pawn position
 function updatePawnPosition(pawn, position) {
   const cell = getCell(position);
   if (!cell) return;
@@ -108,18 +109,25 @@ function updatePawnPosition(pawn, position) {
   const cellWidth = 60;
   const cellHeight = 60;
   
+  // Max pawns per row
+  const maxPawnsPerRow = 5;
+  
   // Adjust for multiple pawns in the same cell
   const offset = 2;
-  // Added minimum size of 15px
-  const pawnSize = Math.max(18, Math.min(40, (cellWidth - (pawnsInCell.length - 1) * offset) / pawnsInCell.length));
-  
+  // Calculate row and column based on index
   const index = pawnsInCell.indexOf(pawn);
+  const row = Math.floor(index / maxPawnsPerRow);
+  const col = index % maxPawnsPerRow;
+  
+  // Added minimum size of 15px
+  const pawnSize = Math.max(15, Math.min(30, (cellWidth - (Math.min(maxPawnsPerRow, pawnsInCell.length) - 1) * offset) / Math.min(maxPawnsPerRow, pawnsInCell.length)));
   
   pawn.style.width = `${pawnSize}px`;
   pawn.style.height = `${pawnSize}px`;
-  pawn.style.left = `${offsetX + cellWidth / 2 - pawnSize / 2 +
-    (index - (pawnsInCell.length - 1) / 2) * (pawnSize + offset)}px`;
-  pawn.style.top = `${offsetY + cellHeight / 2 - pawnSize / 2}px`;
+  
+  // Position each pawn in a grid pattern
+  pawn.style.left = `${offsetX + (col * (pawnSize + offset))}px`;
+  pawn.style.top = `${offsetY + (row * (pawnSize + offset))}px`;
 }
 
 // Get the total length of the path

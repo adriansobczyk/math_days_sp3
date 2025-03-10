@@ -235,7 +235,7 @@ td input {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 12px;
+  font-size: 9px;
   font-weight: bold;
   transition: all 0.3s ease;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.0), inset 0 -4px 8px rgba(0, 0, 0, 0.4);
@@ -755,7 +755,7 @@ select option:not(.greyed) {
   .pawn {
     width: 30px;
     height: 30px;
-    font-size: 12px;
+    font-size: 6px;
   }
   .modal-content {
     width: 90%;

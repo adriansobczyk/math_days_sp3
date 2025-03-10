@@ -14,13 +14,7 @@ COLORS = [
     'gold', 'silver', 'gray', 'black'
 ]
 
-task_names = {
-    1: "Zadanie 1",
-    2: "Zadanie 2",
-    3: "Zadanie 3",
-    4: "Zadanie 4",
-    5: "Zadanie 5"
-}
+task_names = {i: f"Zadanie {i}" for i in range(1, 51)}
 
 class Player(db.Model):
     __tablename__ = 'players'
