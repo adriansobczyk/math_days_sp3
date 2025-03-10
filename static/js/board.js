@@ -123,14 +123,6 @@ async function activateBonus(playerId, bonusType) {
       body: JSON.stringify({ bonusType })
     });
 
-    if (!response.ok) {
-      // Re-enable the button if the request fails
-      if (bonusButton) {
-        bonusButton.disabled = false;
-      }
-      throw new Error('Failed to activate bonus');
-    }
-
     const result = await response.json();
     console.log(`Bonus aktywowany: ${result.message}`);
     const updatedPlayer = result.player;
@@ -161,11 +153,6 @@ async function activateBonus(playerId, bonusType) {
     const bonusCheckbox = document.getElementById(`${bonusType.replace('_', '-')}-${playerId}`);
     if (bonusCheckbox) {
       bonusCheckbox.checked = false;
-    }
-
-    // Ensure the button remains disabled
-    if (bonusButton) {
-      bonusButton.disabled = true;
     }
 
   } catch (error) {

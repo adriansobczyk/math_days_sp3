@@ -6,7 +6,7 @@ def init_db():
     db.drop_all()
     db.create_all()
     
-    player_names = ['4a', '4b', '4c', '4d', '4e']
+    player_names = ['4a', '4b', '4c', '4d', '4e', '5a', '6a', '7a']
     used_shapes = set()
     
     for i, player_name in enumerate(player_names):
@@ -33,19 +33,19 @@ def init_db():
     
     # Add sample data for CorrectSentence
     sample_sentences = [
-        {"correct_sentence": "hasło 1", "cell_number": 1, "classroom": "Sala 1"},
-        {"correct_sentence": "hasło 2", "cell_number": 2, "classroom": "Sala 2"},
-        {"correct_sentence": "hasło 3", "cell_number": 3, "classroom": "Sala 3"},
-        {"correct_sentence": "hasło 4", "cell_number": 4, "classroom": "Sala 4"},
-        {"correct_sentence": "hasło 5", "cell_number": 5, "classroom": "Sala 5"},
-        {"correct_sentence": "hasło 6", "cell_number": 6, "classroom": "Sala 6"}
+        {"correct_sentence": "hasło 1", "cell_number": 1, "classroom_4th_grade": "Sala 4", "classroom_5th_grade": "Sala 5", "classroom_6th_grade": "Sala 6", "classroom_7th_grade": "Sala 7"},
+        {"correct_sentence": "hasło 2", "cell_number": 2, "classroom_4th_grade": "Sala 4", "classroom_5th_grade": "Sala 5", "classroom_6th_grade": "Sala 6", "classroom_7th_grade": "Sala 7"},
+        {"correct_sentence": "hasło 3", "cell_number": 3, "classroom_4th_grade": "Sala 4", "classroom_5th_grade": "Sala 5", "classroom_6th_grade": "Sala 6", "classroom_7th_grade": "Sala 7"},
+        {"correct_sentence": "hasło 4", "cell_number": 4, "classroom_4th_grade": "Sala 4", "classroom_5th_grade": "Sala 5", "classroom_6th_grade": "Sala 6", "classroom_7th_grade": "Sala 7"},
+        {"correct_sentence": "hasło 5", "cell_number": 5, "classroom_4th_grade": "Sala 4", "classroom_5th_grade": "Sala 5", "classroom_6th_grade": "Sala 6", "classroom_7th_grade": "Sala 7"},
+        {"correct_sentence": "hasło 6", "cell_number": 6, "classroom_4th_grade": "Sala 4", "classroom_5th_grade": "Sala 5", "classroom_6th_grade": "Sala 6", "classroom_7th_grade": "Sala 7"}
     ]
     
     for sentence in sample_sentences:
         correct_sentence = CorrectSentence(
             correct_sentence=sentence["correct_sentence"],
             cell_number=sentence["cell_number"],
-            classroom=sentence["classroom"]
+            classroom_4th_grade=sentence["classroom_4th_grade"]
         )
         db.session.add(correct_sentence)
     

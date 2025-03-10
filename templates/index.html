@@ -104,14 +104,14 @@
                 <button id="roll-{{ player.id }}" data-player-id="{{ player.id }}" onclick="rollDiceForPlayer('{{ player.id }}')" {% if player.roll_disabled %}disabled{% endif %}>Rzuć kostką</button>
                 <button id="unblock-{{ player.id }}" onclick="enablePlayerButton('{{ player.id }}')" class="unblock-button" {% if not player.task_done %}disabled{% endif %}>Odblokuj</button>
               </div>
-              </td>
-              <td>
-                <div class="bonus-actions">
-                  <button id="bonus-one-{{ player.id }}" onclick="activateBonus('{{ player.id }}', 'bonus_plus_one')" {% if not player.bonus_plus_one %}disabled{% endif %}>Aktywuj +1</button>
-                  <button id="bonus-two-{{ player.id }}" onclick="activateBonus('{{ player.id }}', 'bonus_plus_two')" {% if not player.bonus_plus_two %}disabled{% endif %}>Aktywuj +2</button>
-                  <button id="bonus-three-{{ player.id }}" onclick="activateBonus('{{ player.id }}', 'bonus_plus_three')" {% if not player.bonus_plus_three %}disabled{% endif %}>Aktywuj +3</button>
-                </div>
-              </td>
+            </td>
+            <td>
+              <div class="bonus-actions">
+                <button id="bonus-one-{{ player.id }}" onclick="activateBonus('{{ player.id }}', 'bonus_plus_one')" {% if player.roll_disabled or not player.bonus_plus_one %}disabled{% endif %}>Aktywuj +1</button>
+                <button id="bonus-two-{{ player.id }}" onclick="activateBonus('{{ player.id }}', 'bonus_plus_two')" {% if player.roll_disabled or not player.bonus_plus_two %}disabled{% endif %}>Aktywuj +2</button>
+                <button id="bonus-three-{{ player.id }}" onclick="activateBonus('{{ player.id }}', 'bonus_plus_three')" {% if player.roll_disabled or not player.bonus_plus_three %}disabled{% endif %}>Aktywuj +3</button>
+              </div>
+            </td>
           </tr>
           {% endfor %}
         </tbody>

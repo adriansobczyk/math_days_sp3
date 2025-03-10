@@ -29,13 +29,20 @@ def update_player(player_id):
         if 'task_done' in data:
             player.task_done = data['task_done']
         
+        # Update bonus statuses if provided
+        if 'bonus_plus_one' in data:
+            player.bonus_plus_one = data['bonus_plus_one']
+        if 'bonus_plus_two' in data:
+            player.bonus_plus_two = data['bonus_plus_two']
+        if 'bonus_plus_three' in data:
+            player.bonus_plus_three = data['bonus_plus_three']
+        
         db.session.commit()
         
         return jsonify(player.to_dict()), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-
 @app.route('/api/roll/<int:player_id>', methods=['POST'])
 def roll_dice(player_id):
     player = Player.query.get_or_404(player_id)
@@ -74,6 +81,7 @@ def activate_bonus(player_id):
         'new_result': player.result,
         'player': player.to_dict()
     })
+    
 @app.route('/api/players/latest', methods=['GET'])
 def get_latest_players():
     players = Player.query.all()
@@ -162,7 +170,7 @@ def get_recent_tasks():
     
     for player_code, correct_code in recent_codes:
         player = Player.query.get(player_code.player_id)
-        message = f"{player.name} poprawnie rozszyfrowała hasło i otrzymała {correct_code.bonus_type} do przodu."
+        message = f"{player.name} poprawnie rozszyfrowała hasło i otrzymała {correct_code.bonus_type} do przodu. Aktywuj bonus po wykonaniu zadania."
         tasks.append({
             'player': {
                 'id': player.id,
@@ -212,12 +220,24 @@ def submit_sentence():
         else:
             correct_sentence.completed = True
             db.session.commit()
-            flash(f'Hasło poprawne. Zadanie jest w {correct_sentence.classroom}.', 'success')
+            
+            # Determine the classroom based on player prefix
+            if player.name.startswith('4'):
+                classroom = correct_sentence.classroom_4th_grade
+            elif player.name.startswith('5'):
+                classroom = correct_sentence.classroom_5th_grade
+            elif player.name.startswith('6'):
+                classroom = correct_sentence.classroom_6th_grade
+            elif player.name.startswith('7'):
+                classroom = correct_sentence.classroom_7th_grade
+            else:
+                classroom = 'Klasa nieznana'
+            
+            flash(f'Hasło poprawne. Zadanie jest w {classroom}.', 'success')
     else:
         flash('Niepoprawne hasło.', 'error')
     
     return redirect(url_for('sentence_form'))
-
 @app.route('/haslo')
 def sentence_form():
     players = Player.query.order_by(Player.name).all()

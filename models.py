@@ -106,7 +106,10 @@ class CorrectSentence(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     correct_sentence = db.Column(db.String(255), nullable=False)
     cell_number = db.Column(db.Integer, nullable=False)
-    classroom = db.Column(db.String(50), nullable=False)
+    classroom_4th_grade = db.Column(db.String(50), default='Sala 4')
+    classroom_5th_grade = db.Column(db.String(50), default='Sala 5')
+    classroom_6th_grade = db.Column(db.String(50), default='Sala 6')
+    classroom_7th_grade = db.Column(db.String(50), default='Sala 7')
     completed = db.Column(db.Boolean, default=False)
     
     def __repr__(self):
@@ -117,7 +120,10 @@ class CorrectSentence(db.Model):
             'id': self.id,
             'correct_sentence': self.correct_sentence,
             'cell_number': self.cell_number,
-            'classroom': self.classroom,
+            'classroom_4th_grade': self.classroom_4th_grade,
+            'classroom_5th_grade': self.classroom_5th_grade,
+            'classroom_6th_grade': self.classroom_6th_grade,
+            'classroom_7th_grade': self.classroom_7th_grade,
             'completed': self.completed
         }
 

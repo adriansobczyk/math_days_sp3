@@ -34,12 +34,13 @@ async function updateScoreTable() {
       if (bonusThreeCheck) bonusThreeCheck.checked = player.bonus_plus_three;
       
       // Update bonus activation buttons
-      const bonusButtons = row.querySelectorAll('.bonus-actions button');
-      if (bonusButtons.length >= 3) {
-        bonusButtons[0].disabled = !player.bonus_plus_one;
-        bonusButtons[1].disabled = !player.bonus_plus_two;
-        bonusButtons[2].disabled = !player.bonus_plus_three;
-      }
+      const bonusOneButton = document.getElementById(`bonus-one-${player.id}`);
+      const bonusTwoButton = document.getElementById(`bonus-two-${player.id}`);
+      const bonusThreeButton = document.getElementById(`bonus-three-${player.id}`);
+      
+      if (bonusOneButton) bonusOneButton.disabled = player.roll_disabled || !player.bonus_plus_one;
+      if (bonusTwoButton) bonusTwoButton.disabled = player.roll_disabled || !player.bonus_plus_two;
+      if (bonusThreeButton) bonusThreeButton.disabled = player.roll_disabled || !player.bonus_plus_three;
     }
   });
 }
