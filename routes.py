@@ -163,7 +163,7 @@ def get_recent_tasks():
     
     for player_code, correct_code in recent_codes:
         player = Player.query.get(player_code.player_id)
-        message = f"{player.name} poprawnie rozszyfrowała hasło i otrzymała {correct_code.bonus_type} do przodu. Aktywuj bonus po wykonaniu zadania."
+        message = f"{player.name} poprawnie rozszyfrowała hasło {correct_code.sentence} i otrzymała {correct_code.bonus_type} do przodu. Aktywuj bonus po wykonaniu zadania."
         tasks.append({
             'player': {
                 'id': player.id,
