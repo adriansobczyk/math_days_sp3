@@ -273,7 +273,7 @@ def submit_code():
     
     if correct_code:
         if correct_code.completed:
-            flash('Ten szyfr został już odgadnięty.', 'error')
+            flash('Szyfr został już użyty.', 'error')
         else:
             correct_code.completed = True
             db.session.commit()
