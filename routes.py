@@ -20,23 +20,16 @@ def update_player(player_id):
         
         if not player:
             return jsonify({'error': 'Player not found'}), 404
-        
-        # Update roll_disabled status if provided
         if 'roll_disabled' in data:
             player.roll_disabled = data['roll_disabled']
-        
-        # Update task_done status if provided
         if 'task_done' in data:
             player.task_done = data['task_done']
-        
-        # Update bonus statuses if provided
         if 'bonus_plus_one' in data:
             player.bonus_plus_one = data['bonus_plus_one']
         if 'bonus_plus_two' in data:
             player.bonus_plus_two = data['bonus_plus_two']
         if 'bonus_plus_three' in data:
             player.bonus_plus_three = data['bonus_plus_three']
-        
         db.session.commit()
         
         return jsonify(player.to_dict()), 200
@@ -65,13 +58,13 @@ def activate_bonus(player_id):
 
     if bonus_type == 'bonus_plus_one':
         player.result += 1
-        player.bonus_plus_one = False  # Set the bonus to False after use
+        player.bonus_plus_one = False
     elif bonus_type == 'bonus_plus_two':
         player.result += 2
-        player.bonus_plus_two = False  # Set the bonus to False after use
+        player.bonus_plus_two = False
     elif bonus_type == 'bonus_plus_three':
         player.result += 3
-        player.bonus_plus_three = False  # Set the bonus to False after use
+        player.bonus_plus_three = False
     else:
         return jsonify({'error': 'Invalid bonus type'}), 400
 
@@ -193,7 +186,6 @@ def get_notifications():
     notifications = PlayerNotification.query.order_by(PlayerNotification.timestamp.desc()).all()
     return jsonify([notification.to_dict() for notification in notifications])
 
-
 @app.route('/submit_sentence', methods=['POST'])
 def submit_sentence():
     player_id = request.form.get('player_id')
@@ -218,25 +210,19 @@ def submit_sentence():
     ).first()
     
     if correct_sentence:
-        if correct_sentence.completed:
-            flash('To hasło zostało już odgadnięte.', 'error')
-        else:
-            correct_sentence.completed = True
-            db.session.commit()
-            
             # Determine the classroom based on player prefix
-            if player.name.startswith('4'):
-                classroom = correct_sentence.classroom_4th_grade
-            elif player.name.startswith('5'):
-                classroom = correct_sentence.classroom_5th_grade
-            elif player.name.startswith('6'):
-                classroom = correct_sentence.classroom_6th_grade
-            elif player.name.startswith('7'):
-                classroom = correct_sentence.classroom_7th_grade
-            else:
-                classroom = 'Klasa nieznana'
-            
-            flash(f'Hasło poprawne. Zadanie jest w {classroom}.', 'success')
+        if player.name.startswith('4'):
+            classroom = correct_sentence.classroom_4th_grade
+        elif player.name.startswith('5'):
+            classroom = correct_sentence.classroom_5th_grade
+        elif player.name.startswith('6'):
+            classroom = correct_sentence.classroom_6th_grade
+        elif player.name.startswith('7'):
+            classroom = correct_sentence.classroom_7th_grade
+        else:
+            classroom = 'Klasa nieznana'
+        
+        flash(f'Hasło poprawne. Zadanie jest w {classroom}.', 'success')
     else:
         flash('Niepoprawne hasło.', 'error')
     
@@ -272,7 +258,7 @@ def get_bonus_updates():
 @app.route('/submit_code', methods=['POST'])
 def submit_code():
     player_id = request.form.get('player_id')
-    code = request.form.get('code').strip()  # Strip any extra spaces
+    code = request.form.get('code').strip() 
     
     if not player_id or not code:
         flash('Klasa oraz szyfr jest wymagany.', 'error')
@@ -283,23 +269,25 @@ def submit_code():
     db.session.add(new_player_code)
     db.session.commit()
     
-    # correct_code = CorrectCode.query.filter_by(sentence=code).first()
-    correct_code = CorrectCode.query.filter(CorrectCode.sentence.ilike(code)).first() # Case-insensitive search
+    correct_code = CorrectCode.query.filter(CorrectCode.sentence.ilike(code)).first()
     
     if correct_code:
-        print(f"Correct code found: {correct_code.sentence} with bonus type {correct_code.bonus_type}")
-        if correct_code.bonus_type == '+1':
-            player.bonus_plus_one = True
-        elif correct_code.bonus_type == '+2':
-            player.bonus_plus_two = True
-        elif correct_code.bonus_type == '+3':
-            player.bonus_plus_three = True
-        
-        db.session.commit()
+        if correct_code.completed:
+            flash('Ten szyfr został już odgadnięty.', 'error')
+        else:
+            correct_code.completed = True
+            db.session.commit()
 
-        flash(f'Szyfr jest poprawny. Otrzymałeś {correct_code.bonus_type}.', 'success')
+            if correct_code.bonus_type == '+1':
+                player.bonus_plus_one = True
+            elif correct_code.bonus_type == '+2':
+                player.bonus_plus_two = True
+            elif correct_code.bonus_type == '+3':
+                player.bonus_plus_three = True
+            db.session.commit()
+
+            flash(f'Szyfr jest poprawny. Otrzymałeś {correct_code.bonus_type}.', 'success')
     else:
-        print(f"Entered code: {code} does not match any correct code.")
         flash('Szyfr jest niepoprawny. Spróbuj ponownie.', 'error')
     
     return redirect(url_for('code_form'))

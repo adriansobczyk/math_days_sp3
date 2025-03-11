@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 app.config['SECRET_KEY'] = '7$p*sbypsggppwg+pfq=yvim4m&cfq#ybu7!m&akx%x+&u*4k-'
 basedir = os.path.abspath(os.path.dirname(__file__))
 

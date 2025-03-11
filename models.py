@@ -103,7 +103,6 @@ class CorrectSentence(db.Model):
     classroom_5th_grade = db.Column(db.String(50), default='Sala 5')
     classroom_6th_grade = db.Column(db.String(50), default='Sala 6')
     classroom_7th_grade = db.Column(db.String(50), default='Sala 7')
-    completed = db.Column(db.Boolean, default=False)
     
     def __repr__(self):
         return f'<CorrectSentence {self.cell_number} - {self.correct_sentence}>'
@@ -117,7 +116,6 @@ class CorrectSentence(db.Model):
             'classroom_5th_grade': self.classroom_5th_grade,
             'classroom_6th_grade': self.classroom_6th_grade,
             'classroom_7th_grade': self.classroom_7th_grade,
-            'completed': self.completed
         }
 
 class PlayerCode(db.Model):
@@ -150,6 +148,7 @@ class CorrectCode(db.Model):
     subject = db.Column(db.String(255), nullable=False)
     bonus_type = db.Column(db.String(255), nullable=False)
     sentence = db.Column(db.String(255), nullable=False)
+    completed = db.Column(db.Boolean, default=False)
     
     def __repr__(self):
         return f'<CorrectCode {self.subject}>'
@@ -159,7 +158,8 @@ class CorrectCode(db.Model):
             'id': self.id,
             'subject': self.subject,
             'bonus_type': self.bonus_type,
-            'sentence': self.sentence
+            'sentence': self.sentence,
+            'completed': self.completed
         }
 
 
