@@ -72,6 +72,10 @@ ul {
   width: 100%;
 }
 
+.extra-large {
+  font-size: 3rem;
+}
+
 .logo img {
   height: 7rem;
   padding-left: 2rem;
