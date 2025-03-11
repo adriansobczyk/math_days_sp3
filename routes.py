@@ -128,7 +128,7 @@ def complete_task():
         task_status=True
     )
     db.session.add(player_task)
-    player.result += 1
+    player.result
     player.task_done = True
     
     db.session.commit()
