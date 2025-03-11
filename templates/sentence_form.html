@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,43 +9,53 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script src="{{ url_for('static', filename='js/get_cell_number.js') }}" defer></script>
 </head>
-<body class="centered-form">
-  <nav>
-    <button onclick="window.open('/', '_blank')">Plansza</button>
-    <button onclick="window.open('/zadania', '_blank')">Zadania</button>
-    <button onclick="window.open('/szyfr', '_blank')">Szyfry</button>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='sp3_zabki_logo.png') }}" alt="SP3 Ząbki Logo">
+    </div>
+    <div class="nav-buttons">
+      <button onclick="window.open('/', '_blank')">Plansza</button>
+      <button onclick="window.open('/zadania', '_blank')">Zadania</button>
+      <button onclick="window.open('/szyfr', '_blank')">Szyfry</button>
+    </div>
   </nav>
-  <h1>Wybierz klasę i wpisz hasło</h1>
-  {% with messages = get_flashed_messages(with_categories=true) %}
+  <div class="centered-form">
+    <h1>Wybierz klasę i wpisz hasło</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-      {% for category, message in messages %}
-        <div class="notification {{ category }}">
-          {{ message }}
-        </div>
-      {% endfor %}
+    {% for category, message in messages %}
+    <div class="notification {{ category }}">
+      {{ message }}
+    </div>
+    {% endfor %}
     {% endif %}
-  {% endwith %}
-  <div class="task-form">
-    <form action="{{ url_for('submit_sentence') }}" method="POST">
-      <div class="form-group">
-        <label for="player_id">Klasa:</label>
-        <select id="player_id" name="player_id" class="form-control" required>
-          <option value="">-- Wybierz klasę --</option>
-          {% for player in players %}
-          <option value="{{ player.id }}">{{ player.name }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="form-group" style="display: none;">
-        <label for="cell_number">Numer pola:</label>
-        <input type="hidden" id="cell_number" name="cell_number" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="sentence">Hasło:</label>
-        <input type="text" id="sentence" name="sentence" class="form-control" placeholder="Wpisz hasło tutaj" required>
-      </div>
-      <button type="submit" class="submit-btn">Zatwierdź</button>
-    </form>
+    {% endwith %}
+    <div class="task-form">
+      <form action="{{ url_for('submit_sentence') }}" method="POST">
+        <div class="form-group">
+          <label for="player_id">Klasa:</label>
+          <select id="player_id" name="player_id" class="form-control" required>
+            <option value="">-- Wybierz klasę --</option>
+            {% for player in players %}
+            <option value="{{ player.id }}">{{ player.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group" style="display: none;">
+          <label for="cell_number">Numer pola:</label>
+          <input type="hidden" id="cell_number" name="cell_number" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="sentence">Hasło:</label>
+          <input type="text" id="sentence" name="sentence" class="form-control" placeholder="Wpisz hasło tutaj"
+            required>
+        </div>
+        <button type="submit" class="submit-btn">Zatwierdź</button>
+      </form>
+    </div>
   </div>
 </body>
+
 </html>

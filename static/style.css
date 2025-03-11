@@ -65,6 +65,27 @@ ul {
   list-style-type: none;
 }
 
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  width: 100%;
+}
+
+.logo img {
+  height: 7rem;
+  padding-left: 2rem;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.nav-buttons button {
+  margin-left: 10px;
+}
+
 button:disabled {
   background-color: #ccc;
   color: #666;

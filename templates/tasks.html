@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,112 +8,121 @@
   <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="centered-form flex-container">
-  <nav>
-    <button onclick="window.open('/', '_blank')">Plansza</button>
-    <button onclick="window.open('/haslo', '_blank')">Hasła</button>
-    <button onclick="window.open('/szyfr', '_blank')">Szyfry</button>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='sp3_zabki_logo.png') }}" alt="SP3 Ząbki Logo">
+    </div>
+    <div class="nav-buttons">
+      <button onclick="window.open('/', '_blank')">Plansza</button>
+      <button onclick="window.open('/zadania', '_blank')">Zadania</button>
+      <button onclick="window.open('/szyfr', '_blank')">Szyfry</button>
+    </div>
   </nav>
-  <h1>Wybierz klasę i oznacz zadanie jako ukończone</h1>
-  <div class="task-form">
-    <form id="complete-task-form">
-      <div class="form-group">
-        <label for="player-select">Klasa:</label>
-        <select id="player-select" name="player_id" class="form-control" required>
-          <option value="">-- Wybierz klasę --</option>
-          {% for player in players %}
-          <option value="{{ player.id }}">{{ player.name }}</option>
-          {% endfor %}
-        </select>
+  <div class="centered-form">
+    <h1>Wybierz klasę i oznacz zadanie jako ukończone</h1>
+    <div class="task-form">
+      <form id="complete-task-form">
+        <div class="form-group">
+          <label for="player-select">Klasa:</label>
+          <select id="player-select" name="player_id" class="form-control" required>
+            <option value="">-- Wybierz klasę --</option>
+            {% for player in players %}
+            <option value="{{ player.id }}">{{ player.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="task-select">Zadanie:</label>
+          <select id="task-select" name="task_id" class="form-control" required>
+            <option value="" class="greyed">-- Wybierz zadanie --</option>
+            {% for task_id, task_name in task_names.items() %}
+            <option value="{{ task_id }}">{{ task_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button type="submit" class="submit-btn">Oznacz jako ukończone</button>
+      </form>
+
+      <div id="completion-message" style="margin-top: 15px; text-align: center; display: none;">
+        <p class="success-message" style="color: green; font-weight: bold;"></p>
       </div>
-      
-      <div class="form-group">
-        <label for="task-select">Zadanie:</label>
-        <select id="task-select" name="task_id" class="form-control" required>
-          <option value="" class="greyed">-- Wybierz zadanie --</option>
-          {% for task_id, task_name in task_names.items() %}
-          <option value="{{ task_id }}">{{ task_name }}</option>
-          {% endfor %}
-        </select>
+      <div id="loading" style="display: none; text-align: center;">
+        <p>Ładowanie...</p>
       </div>
-      
-      <button type="submit" class="submit-btn">Oznacz jako ukończone</button>
-    </form>
-    
-    <div id="completion-message" style="margin-top: 15px; text-align: center; display: none;">
-      <p class="success-message" style="color: green; font-weight: bold;"></p>
     </div>
-    <div id="loading" style="display: none; text-align: center;">
-      <p>Ładowanie...</p>
-    </div>
-  </div>
-  
-  <div class="recent-tasks">
-    <p><strong>Ostatnio ukończone zadania:</strong></p>
-    {% if recent_tasks %}
+
+    <div class="recent-tasks">
+      <p><strong>Ostatnio ukończone zadania:</strong></p>
+      {% if recent_tasks %}
       {% for task in recent_tasks %}
       <div class="task-item">
         <strong>{{ task.player.name }}</strong> ukończył <strong>{{ task_names[task.task_id] }}</strong>
         o godzinie {{ task.completed_at.strftime('%H:%M:%S') }}
       </div>
       {% endfor %}
-    {% else %}
+      {% else %}
       <p>Brak ukończonych zadań.</p>
-    {% endif %}
+      {% endif %}
+    </div>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       const form = document.getElementById('complete-task-form');
       const messageDiv = document.getElementById('completion-message');
       const successMessage = document.querySelector('.success-message');
       const loadingDiv = document.getElementById('loading');
-      
-      form.addEventListener('submit', function(e) {
+
+      form.addEventListener('submit', function (e) {
         e.preventDefault();
-        
+
         const playerSelect = document.getElementById('player-select');
         const taskSelect = document.getElementById('task-select');
         const playerId = playerSelect.value;
         const taskId = taskSelect.value;
         const playerName = playerSelect.options[playerSelect.selectedIndex].text;
         const taskName = taskSelect.options[taskSelect.selectedIndex].text;
-        
+
         if (!playerId || !taskId) {
           alert('Wybierz klasę i zadanie, aby oznaczyć zadanie jako ukończone.');
           return;
         }
-        
+
         const formData = new FormData(form);
         loadingDiv.style.display = 'block';
-        
+
         fetch('/complete_task', {
           method: 'POST',
           body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-          loadingDiv.style.display = 'none';
-          if (data.success) {
-            successMessage.textContent = `${playerName} ukończyła zadanie ${taskName}!`;
-            messageDiv.style.display = 'block';
-            form.reset();
-            
-            // Reload page to show updated completions
-            setTimeout(() => {
-              location.reload();
-            }, 1500);
-          } else {
-            alert('Error: ' + (data.error || 'Zadanie nie zostało ukończone.'));
-          }
-        })
-        .catch(error => {
-          loadingDiv.style.display = 'none';
-          console.error('Error:', error);
-          alert('Wystąpił błąd. Spróbuj ponownie.');
-        });
+          .then(response => response.json())
+          .then(data => {
+            loadingDiv.style.display = 'none';
+            if (data.success) {
+              successMessage.textContent = `${playerName} ukończyła zadanie ${taskName}!`;
+              messageDiv.style.display = 'block';
+              form.reset();
+
+              // Reload page to show updated completions
+              setTimeout(() => {
+                location.reload();
+              }, 1500);
+            } else {
+              alert('Error: ' + (data.error || 'Zadanie nie zostało ukończone.'));
+            }
+          })
+          .catch(error => {
+            loadingDiv.style.display = 'none';
+            console.error('Error:', error);
+            alert('Wystąpił błąd. Spróbuj ponownie.');
+          });
       });
     });
   </script>
 </body>
+
 </html>
